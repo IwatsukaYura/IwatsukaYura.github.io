@@ -1,7 +1,7 @@
 {{- define "main" }}
 
 {{/* ホームだけ幅を広げる（他ページはテーマ既定のまま） */}}
-<style>main.main { max-width: 1300px; }</style>
+<style>main.main { max-width: 1240px; }</style>
 
 {{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections }}
 {{- $pages = where $pages "Params.hiddenInHomeList" "!=" "true" }}
@@ -14,51 +14,39 @@
     <div class="side-card profile-card">
       <img class="profile-card__avatar" draggable="false"
            src="{{ site.Params.profile.avatar | default "https://github.com/IwatsukaYura.png" }}"
-           alt="{{ site.Params.author }}" width="96" height="96" loading="lazy" />
+           alt="{{ site.Params.author }}" width="104" height="104" loading="lazy" />
       <h2 class="profile-card__name">{{ site.Params.author }}</h2>
       <p class="profile-card__bio">{{ site.Params.profile.bio | default site.Params.description }}</p>
       {{- partial "social_icons.html" (dict "align" "center") }}
       <div class="profile-stats">
-        <div class="profile-stat">
-          <b>{{ len $pages }}</b><span>記事</span>
-        </div>
-        <div class="profile-stat">
-          <b>{{ len site.Taxonomies.tags }}</b><span>タグ</span>
-        </div>
-        <div class="profile-stat">
-          <b>{{ len site.Taxonomies.sources }}</b><span>投稿元</span>
-        </div>
+        <div class="profile-stat"><b>{{ len $pages }}</b><span>記事</span></div>
+        <div class="profile-stat"><b>{{ len site.Taxonomies.tags }}</b><span>タグ</span></div>
+        <div class="profile-stat"><b>{{ len site.Taxonomies.sources }}</b><span>投稿元</span></div>
       </div>
     </div>
   </aside>
 
-  {{/* ============ 中央：記事一覧 ============ */}}
+  {{/* ============ 中央：記事フィード ============ */}}
   <section class="home-center">
-    {{- if eq $paginator.PageNumber 1 }}
-    <header class="page-header"><h1 style="margin:0">最新の記事</h1></header>
-    {{- end }}
-
-    {{- range $paginator.Pages }}
-    <article class="post-entry">
-      {{- $isHidden := (.Param "cover.hiddenInList") | default (.Param "cover.hidden") | default false }}
-      {{- partial "cover.html" (dict "cxt" . "IsSingle" false "isHidden" $isHidden) }}
-      <header class="entry-header">
-        <h2 class="entry-hint-parent home-entry-title">
-          {{- with .Params.source }}<span class="external-badge external-badge--{{ lower . }}">{{ . }}</span>{{ end -}}
-          <span>{{ .Title }}</span>
-        </h2>
-      </header>
-      {{- if (ne (.Param "hideSummary") true) }}
-      <div class="entry-content">
-        <p>{{ .Summary | plainify | htmlUnescape }}{{ if .Truncated }}...{{ end }}</p>
-      </div>
+    <div class="feed">
+      {{- range $paginator.Pages }}
+      <article class="feed-item">
+        <div class="feed-item__top">
+          {{- with .Params.source }}<span class="external-badge external-badge--{{ lower . }}">{{ . }}</span>{{ end }}
+          <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+        </div>
+        <h2 class="feed-item__title">{{ .Title }}</h2>
+        {{- if (ne (.Param "hideSummary") true) }}
+        <p class="feed-item__summary">{{ .Summary | plainify | htmlUnescape }}</p>
+        {{- end }}
+        <div class="feed-item__foot">
+          <span>{{ .ReadingTime }} 分で読めます</span>
+          {{- with .Params.source }}<span>·</span><span>{{ . }}</span>{{ else }}<span>·</span><span>{{ site.Params.author }}</span>{{ end }}
+        </div>
+        <a class="feed-item__coverlink" href="{{ .Permalink }}" aria-label="{{ .Title | plainify }}"></a>
+      </article>
       {{- end }}
-      <footer class="entry-footer">
-        {{- partial "post_meta.html" . -}}
-      </footer>
-      <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ .Permalink }}"></a>
-    </article>
-    {{- end }}
+    </div>
 
     {{- if gt $paginator.TotalPages 1 }}
     <footer class="page-footer">
@@ -77,21 +65,22 @@
   {{/* ============ 右：検索・投稿元・タグ・アーカイブ ============ */}}
   <aside class="home-right">
 
-    <div class="side-card side-search">
-      <h3>検索</h3>
-      <a href="{{ "search/" | relURL }}"><input type="text" placeholder="記事を検索…" readonly aria-label="検索ページへ" /></a>
-    </div>
+    <a class="side-card side-search" href="{{ "search/" | relURL }}">
+      <div class="side-card__label">検索</div>
+      <div class="side-search__box">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <span>記事を検索…</span>
+      </div>
+    </a>
 
     {{- with site.Taxonomies.sources }}
     <div class="side-card">
-      <h3>投稿元</h3>
+      <div class="side-card__label">投稿元</div>
       <ul class="side-list">
-        {{- range $name, $pages := . }}
+        {{- range $name, $pp := . }}
         <li>
-          <a href="{{ (printf "/sources/%s/" $name) | relLangURL }}">
-            <span class="source-dot source-dot--{{ lower $name }}"></span>{{ $name }}
-          </a>
-          <span class="count">{{ len $pages }}</span>
+          <a href="{{ (printf "/sources/%s/" $name) | relLangURL }}"><span class="source-dot source-dot--{{ lower $name }}"></span>{{ $name }}</a>
+          <span class="count">{{ len $pp }}</span>
         </li>
         {{- end }}
       </ul>
@@ -100,12 +89,12 @@
 
     {{- with site.Taxonomies.tags }}
     <div class="side-card">
-      <h3>タグ</h3>
+      <div class="side-card__label">タグ</div>
       <div class="tag-cloud">
         {{- $max := 1 }}
         {{- range .ByCount }}{{ if gt .Count $max }}{{ $max = .Count }}{{ end }}{{ end }}
         {{- range .ByCount }}
-        {{- $size := add 0.8 (mul (div (float .Count) (float $max)) 0.8) }}
+        {{- $size := add 0.82 (mul (div (float .Count) (float $max)) 0.7) }}
         <a href="{{ .Page.RelPermalink }}" style="font-size:{{ $size }}rem" title="{{ .Count }} 記事">{{ .Page.Title }}</a>
         {{- end }}
       </div>
@@ -113,7 +102,7 @@
     {{- end }}
 
     <div class="side-card">
-      <h3>アーカイブ</h3>
+      <div class="side-card__label">アーカイブ</div>
       <ul class="side-list">
         {{- range $pages.GroupByPublishDate "2006" }}
         {{- if ne .Key "0001" }}
@@ -124,19 +113,11 @@
         {{- end }}
         {{- end }}
       </ul>
-      <p style="margin:12px 0 0"><a href="{{ "archives/" | relURL }}">すべてのアーカイブ →</a></p>
+      <p class="side-more"><a href="{{ "archives/" | relURL }}">すべてのアーカイブ →</a></p>
     </div>
 
   </aside>
 
 </div>
-
-<style>
-  .home-entry-title{display:block}
-  .home-entry-title .external-badge{margin-right:8px}
-  .external-badge{display:inline-block;padding:1px 7px;border-radius:4px;font-size:11px;font-weight:600;color:#fff;vertical-align:middle;white-space:nowrap}
-  .external-badge--qiita{background:#55c500}
-  .external-badge--zenn{background:#3ea8ff}
-</style>
 
 {{- end }}{{- /* end main */ -}}
