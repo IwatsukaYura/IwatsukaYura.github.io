@@ -94,7 +94,7 @@
         {{- $max := 1 }}
         {{- range .ByCount }}{{ if gt .Count $max }}{{ $max = .Count }}{{ end }}{{ end }}
         {{- range .ByCount }}
-        {{- $size := add 0.82 (mul (div (float .Count) (float $max)) 0.7) }}
+        {{- $size := add 0.72 (mul (div (float .Count) (float $max)) 0.28) }}
         <a href="{{ .Page.RelPermalink }}" style="font-size:{{ $size }}rem" title="{{ .Count }} 記事">{{ .Page.Title }}</a>
         {{- end }}
       </div>
