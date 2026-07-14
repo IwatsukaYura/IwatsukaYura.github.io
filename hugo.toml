@@ -37,9 +37,14 @@ pygmentsUseClasses = true
   ShowRssButtonInSectionTermList = true
   displayFullLangName = true
 
+  # 左サイドバーのプロフィールカード
+  [params.profile]
+    avatar = "https://github.com/IwatsukaYura.png"  # GitHub アバターを利用（画像を static/ に置いて差し替え可）
+    bio = "3-shake のエンジニア。クラウド / インフラ周りを中心に技術記事を書いています。"
+
   [params.homeInfoParams]
     Title = "Iwatsuka Yura Blog 👋"
-    Content = "技術記事を書いています。このサイトでは自分で書いた記事に加え、Qiita・Zenn に投稿した記事もタグや年月で横断的に管理・検索できます。"
+    Content = "技術記事を書いています。自分で書いた記事に加え、Qiita・Zenn の投稿もタグや年月で横断的に管理・検索できます。"
 
   [[params.socialIcons]]
     name = "github"
