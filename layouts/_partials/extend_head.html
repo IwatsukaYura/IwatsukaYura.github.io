@@ -1,0 +1,6 @@
+{{- /* 外部記事(Qiita/Zenn)ページに直接アクセスされた場合は即座に元記事へリダイレクト */ -}}
+{{- if and .Params.externalUrl (eq .Type "external") -}}
+<meta http-equiv="refresh" content="0; url={{ .Params.externalUrl }}">
+<link rel="canonical" href="{{ .Params.externalUrl }}">
+<script>window.location.replace({{ .Params.externalUrl | jsonify }});</script>
+{{- end -}}
