@@ -40,8 +40,11 @@
         <p class="feed-item__summary">{{ .Summary | plainify | htmlUnescape }}</p>
         {{- end }}
         <div class="feed-item__foot">
-          <span>{{ .ReadingTime }} 分で読めます</span>
-          {{- with .Params.source }}<span>·</span><span>{{ . }}</span>{{ else }}<span>·</span><span>{{ site.Params.author }}</span>{{ end }}
+          {{- with .Params.source }}
+          <span>{{ . }} の記事</span>
+          {{- else }}
+          <span>{{ cond (lt $.ReadingTime 1) 1 $.ReadingTime }} 分で読めます</span><span>·</span><span>{{ site.Params.author }}</span>
+          {{- end }}
         </div>
         <a class="feed-item__coverlink" href="{{ .Params.externalUrl | default .Permalink }}"{{ with .Params.externalUrl }} target="_blank" rel="noopener noreferrer"{{ end }} aria-label="{{ .Title | plainify }}"></a>
       </article>

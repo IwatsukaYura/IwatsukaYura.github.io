@@ -69,7 +69,11 @@
           {{- end }}
         </h3>
         <div class="archive-meta">
-          {{- partial "post_meta.html" . -}}
+          {{- with .Params.source -}}
+            {{ . }} の記事
+          {{- else -}}
+            {{ partial "post_meta.html" . }}
+          {{- end -}}
         </div>
         <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ $link }}"
           {{- with .Params.externalUrl }} target="_blank" rel="noopener noreferrer"{{ end }}></a>

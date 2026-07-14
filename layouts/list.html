@@ -88,7 +88,11 @@
   {{- end }}
   {{- if not (.Param "hideMeta") }}
   <footer class="entry-footer">
-    {{- partial "post_meta.html" . -}}
+    {{- with .Params.source -}}
+      {{ $.Date.Format "2006-01-02" }}&nbsp;·&nbsp;{{ . }} の記事
+    {{- else -}}
+      {{ partial "post_meta.html" . }}
+    {{- end -}}
   </footer>
   {{- end }}
   <a class="entry-link" aria-label="post link to {{ .Title | plainify }}" href="{{ $link }}"
