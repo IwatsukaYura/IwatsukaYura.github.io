@@ -54,11 +54,13 @@ func main() {
 	if zUser := firstNonEmpty(os.Getenv("ZENN_USER"), cfg.Zenn); isConfigured(zUser) {
 		items, err := fetchZenn(zUser)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "warn: zenn fetch failed: %v\n", err)
-		} else {
-			fmt.Printf("zenn: fetched %d items for @%s\n", len(items), zUser)
-			all = append(all, items...)
+			// content/external is not kept in Git, so continuing here would publish a
+			// site with every external article missing. Stop before touching the
+			// directory instead: CI fails and the previous deploy stays live.
+			fatal(fmt.Errorf("zenn fetch failed (content/external left untouched): %w", err))
 		}
+		fmt.Printf("zenn: fetched %d items for @%s\n", len(items), zUser)
+		all = append(all, items...)
 	} else {
 		fmt.Println("zenn: skipped (username not configured)")
 	}

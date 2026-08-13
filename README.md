@@ -1,6 +1,6 @@
 # Iwatsuka Yura Blog
 
-Hugo + [PaperMod](https://github.com/adityatelange/hugo-PaperMod) で構築した技術ブログ。
+[Hugo](https://gohugo.io/) で構築した技術ブログ（テーマは使わずレイアウトは自作）。
 GitHub Pages 上で **完全無料 + CI/CD** で運用し、Zenn の記事も一元管理します。
 
 公開URL: https://iwatsukayura.github.io/
@@ -80,6 +80,7 @@ cd tools/fetch-external && go run .
 | `content/external/` | Zenn から自動生成（`_index.md` 以外は生成物） |
 | `config/sources.json` | 取り込み対象ユーザー名 |
 | `tools/fetch-external/` | Zenn RSS 取り込みツール（Go 標準ライブラリのみ） |
-| `layouts/external/single.html` | 外部記事のリンクカード表示 |
+| `layouts/` | ページテンプレート一式（テーマ非依存） |
+| `assets/` | CSS / JS（ビルド時に連結・minify） |
 | `.github/workflows/deploy.yml` | CI/CD |
 | `hugo.toml` | サイト設定 |

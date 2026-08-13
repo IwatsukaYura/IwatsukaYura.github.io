@@ -15,7 +15,7 @@
         <h2 class="index__year"><span>{{ .Key }}</span></h2>
         {{- range .Pages.GroupByDate "01" }}
         <div class="index__month">
-          <h3 class="index__month-label" id="{{ $.Title }}">{{ .Key }}</h3>
+          <h3 class="index__month-label">{{ .Key }}</h3>
           <div class="index__month-body">
             {{- range .Pages }}
             {{- partial "entry.html" (dict "page" . "dateFormat" "02") }}

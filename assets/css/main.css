@@ -171,9 +171,6 @@ main.shell {
 .skip:focus {
   top: 1rem;
 }
-.mono {
-  font-family: var(--font-mono);
-}
 
 /* ---------- masthead ---------- */
 .masthead {

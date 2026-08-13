@@ -3,6 +3,10 @@
 /resources/_gen/
 /.hugo_build.lock
 
+# tools/fetch-external が毎ビルド再生成する Zenn 記事のスタブ
+/content/external/*.md
+!/content/external/_index.md
+
 # OS / editor
 .DS_Store
 Thumbs.db

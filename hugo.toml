@@ -5,8 +5,6 @@ title = "Iwatsuka Yura Blog"
 
 enableRobotsTXT = true
 enableEmoji = true
-enableGitInfo = false
-pygmentsUseClasses = true
 
 [pagination]
   pagerSize = 12
@@ -20,7 +18,6 @@ pygmentsUseClasses = true
   home = ["HTML", "RSS", "JSON"]   # JSON は検索用
 
 [params]
-  env = "production"
   description = "クラウドとインフラの技術ブログ。Zenn の投稿もここに集約しています。"
   author = "Iwatsuka Yura"
   mainSections = ["posts", "external"]
