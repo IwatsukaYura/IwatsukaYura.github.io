@@ -1,0 +1,18 @@
+{{- /* 年で区切った記事索引。dict "pages" <page collection> を渡す */ -}}
+{{- $pages := .pages -}}
+{{- if $pages }}
+<div class="index">
+  {{- range $pages.GroupByDate "2006" }}
+  {{- if ne .Key "0001" }}
+  <section class="index__group">
+    <h2 class="index__year"><span>{{ .Key }}</span></h2>
+    {{- range .Pages }}
+    {{- partial "entry.html" . }}
+    {{- end }}
+  </section>
+  {{- end }}
+  {{- end }}
+</div>
+{{- else }}
+<p class="empty">まだ記事がありません。</p>
+{{- end }}

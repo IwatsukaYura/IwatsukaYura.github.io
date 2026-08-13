@@ -1,0 +1,34 @@
+{{- /* 索引の 1 行。ページ単体か dict "page" <page> "dateFormat" "01.02" を受け取る */ -}}
+{{- $page := . -}}
+{{- $format := "01.02" -}}
+{{- if reflect.IsMap . -}}
+  {{- $page = .page -}}
+  {{- with .dateFormat }}{{ $format = . }}{{ end -}}
+{{- end -}}
+{{- with $page -}}
+{{- $ext := .Params.externalUrl -}}
+{{- $link := $ext | default .RelPermalink -}}
+<article class="entry">
+  <time class="entry__date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format $format }}</time>
+  <div class="entry__body">
+    <h3 class="entry__title">
+      <a href="{{ $link }}"{{ with $ext }} target="_blank" rel="noopener noreferrer"{{ end }}>{{ .Title }}</a>
+    </h3>
+    <div class="entry__meta">
+      <div class="entry__facets">
+        {{- with .Params.source }}
+        <span class="entry__source">{{ lower . }}<span class="entry__out" aria-hidden="true">&#8599;</span></span>
+        {{- end }}
+        {{- with .GetTerms "tags" }}
+        <ul class="entry__tags">
+          {{- range . }}<li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>{{ end }}
+        </ul>
+        {{- end }}
+      </div>
+      {{- if not .Params.source }}
+      <span class="entry__note">{{ cond (lt .ReadingTime 1) 1 .ReadingTime }} min</span>
+      {{- end }}
+    </div>
+  </div>
+</article>
+{{- end -}}

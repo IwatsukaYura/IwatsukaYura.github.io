@@ -1,0 +1,22 @@
+{{- define "main" }}
+<div class="with-side">
+  <div class="with-side__main">
+    {{- partial "page-head.html" (dict
+      "eyebrow" "index"
+      "title" .Title
+      "note" (printf "%d %s" (len .Data.Terms) .Data.Plural)) }}
+
+    <ul class="terms">
+      {{- range .Data.Terms.ByCount }}
+      <li class="terms__item">
+        <a href="{{ .Page.RelPermalink }}">
+          <span class="terms__name">{{ .Page.LinkTitle }}</span>
+          <span class="terms__count">{{ .Count }}</span>
+        </a>
+      </li>
+      {{- end }}
+    </ul>
+  </div>
+  {{- partial "sidebar.html" . }}
+</div>
+{{- end }}

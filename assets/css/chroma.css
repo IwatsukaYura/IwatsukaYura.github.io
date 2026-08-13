@@ -1,0 +1,164 @@
+/* =========================================================================
+   シンタックスハイライト（Chroma）
+   4 色縛りを守るため色相を増やさない。区別は「太さ・薄さ・標色」の 3 手だけ。
+     ink    … キーワード・関数名・タグ（太字）
+     ash    … コメント・記号・行番号
+     mark   … 文字列・数値・追加行
+   ========================================================================= */
+
+.chroma {
+  color: var(--ink);
+}
+
+/* コメント */
+.chroma .c,
+.chroma .ch,
+.chroma .cm,
+.chroma .c1,
+.chroma .cs,
+.chroma .cp,
+.chroma .cpf {
+  color: var(--ash);
+  font-style: italic;
+}
+
+/* キーワード */
+.chroma .k,
+.chroma .kc,
+.chroma .kd,
+.chroma .kn,
+.chroma .kp,
+.chroma .kr,
+.chroma .ow {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+/* 型・組み込み */
+.chroma .kt,
+.chroma .nb,
+.chroma .bp,
+.chroma .nc,
+.chroma .ne,
+.chroma .nn {
+  color: var(--ink-soft);
+  font-weight: 700;
+}
+
+/* 関数名・タグ名・属性名 */
+.chroma .nf,
+.chroma .fm,
+.chroma .nt,
+.chroma .nd {
+  color: var(--ink);
+  font-weight: 700;
+}
+.chroma .na,
+.chroma .py,
+.chroma .nl {
+  color: var(--ink-soft);
+}
+
+/* 変数・その他の名前は本文色のまま */
+.chroma .n,
+.chroma .nx,
+.chroma .nv,
+.chroma .vc,
+.chroma .vg,
+.chroma .vi,
+.chroma .vm,
+.chroma .no,
+.chroma .ni {
+  color: inherit;
+}
+
+/* 文字列 */
+.chroma .s,
+.chroma .sa,
+.chroma .sb,
+.chroma .sc,
+.chroma .dl,
+.chroma .sd,
+.chroma .s2,
+.chroma .se,
+.chroma .sh,
+.chroma .si,
+.chroma .sx,
+.chroma .sr,
+.chroma .s1,
+.chroma .ss {
+  color: var(--mark);
+}
+
+/* 数値 */
+.chroma .m,
+.chroma .mb,
+.chroma .mf,
+.chroma .mh,
+.chroma .mi,
+.chroma .il,
+.chroma .mo,
+.chroma .l,
+.chroma .ld {
+  color: var(--mark);
+}
+
+/* 記号 */
+.chroma .o,
+.chroma .p {
+  color: var(--ash);
+}
+
+/* 差分・出力 */
+.chroma .gd {
+  color: var(--ash);
+}
+.chroma .gi {
+  color: var(--mark);
+}
+.chroma .gh,
+.chroma .gu,
+.chroma .gs {
+  font-weight: 700;
+}
+.chroma .ge {
+  font-style: italic;
+}
+.chroma .go,
+.chroma .gp,
+.chroma .gt,
+.chroma .gl {
+  color: var(--ash);
+}
+.chroma .err {
+  color: var(--ink);
+  text-decoration: underline wavy var(--ash);
+}
+
+/* 行番号（コードフェンスで linenos を指定した場合） */
+.chroma .lnt,
+.chroma .ln,
+.chroma .lnlinks {
+  color: var(--rule-strong);
+  padding-right: 1.1em;
+  user-select: none;
+}
+.chroma .hl {
+  background: color-mix(in srgb, var(--mark) 12%, transparent);
+  display: block;
+}
+.chroma .lntable {
+  border-collapse: collapse;
+  width: 100%;
+  display: block;
+  overflow-x: auto;
+}
+.chroma .lntable td {
+  padding: 0;
+  border: 0;
+  vertical-align: top;
+}
+.chroma .lntd:first-child {
+  width: 1%;
+  white-space: nowrap;
+}

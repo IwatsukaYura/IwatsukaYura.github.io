@@ -1,12 +1,11 @@
-// Command fetch-external pulls the user's articles from Qiita (API v2) and
-// Zenn (RSS feed) and writes one Hugo content file per article into
-// content/external/. Run from anywhere inside the repo:
+// Command fetch-external pulls the user's articles from Zenn (RSS feed) and
+// writes one Hugo content file per article into content/external/. Run from
+// anywhere inside the repo:
 //
 //	cd tools/fetch-external && go run .
 //
-// Usernames come from config/sources.json, overridable via the QIITA_USER /
-// ZENN_USER environment variables. An optional QIITA_TOKEN raises the Qiita
-// API rate limit. The program uses only the standard library.
+// The username comes from config/sources.json, overridable via the ZENN_USER
+// environment variable. The program uses only the standard library.
 package main
 
 import (
@@ -24,8 +23,7 @@ import (
 )
 
 type sourcesConfig struct {
-	Qiita string `json:"qiita"`
-	Zenn  string `json:"zenn"`
+	Zenn string `json:"zenn"`
 }
 
 // article is the normalized shape written to a Hugo content file.
@@ -34,7 +32,7 @@ type article struct {
 	URL      string
 	Date     time.Time
 	Tags     []string
-	Source   string // "Qiita" or "Zenn"
+	Source   string // "Zenn"
 	Summary  string
 	Slug     string
 }
@@ -52,18 +50,6 @@ func main() {
 	}
 
 	var all []article
-
-	if qUser := firstNonEmpty(os.Getenv("QIITA_USER"), cfg.Qiita); isConfigured(qUser) {
-		items, err := fetchQiita(qUser, os.Getenv("QIITA_TOKEN"))
-		if err != nil {
-			fmt.Fprintf(os.Stderr, "warn: qiita fetch failed: %v\n", err)
-		} else {
-			fmt.Printf("qiita: fetched %d items for @%s\n", len(items), qUser)
-			all = append(all, items...)
-		}
-	} else {
-		fmt.Println("qiita: skipped (username not configured)")
-	}
 
 	if zUser := firstNonEmpty(os.Getenv("ZENN_USER"), cfg.Zenn); isConfigured(zUser) {
 		items, err := fetchZenn(zUser)
@@ -88,61 +74,6 @@ func main() {
 		}
 	}
 	fmt.Printf("wrote %d external article(s) to %s\n", len(all), outDir)
-}
-
-// --- Qiita -----------------------------------------------------------------
-
-type qiitaItem struct {
-	ID        string `json:"id"`
-	Title     string `json:"title"`
-	URL       string `json:"url"`
-	CreatedAt string `json:"created_at"`
-	Body      string `json:"body"`
-	Tags      []struct {
-		Name string `json:"name"`
-	} `json:"tags"`
-}
-
-func fetchQiita(user, token string) ([]article, error) {
-	var out []article
-	for page := 1; page <= 10; page++ {
-		url := fmt.Sprintf("https://qiita.com/api/v2/users/%s/items?per_page=100&page=%d", user, page)
-		req, _ := http.NewRequest(http.MethodGet, url, nil)
-		if token != "" {
-			req.Header.Set("Authorization", "Bearer "+token)
-		}
-		body, err := doGet(req)
-		if err != nil {
-			return nil, err
-		}
-		var items []qiitaItem
-		if err := json.Unmarshal(body, &items); err != nil {
-			return nil, fmt.Errorf("decode qiita page %d: %w", page, err)
-		}
-		if len(items) == 0 {
-			break
-		}
-		for _, it := range items {
-			t, _ := time.Parse(time.RFC3339, it.CreatedAt)
-			tags := make([]string, 0, len(it.Tags))
-			for _, tg := range it.Tags {
-				tags = append(tags, tg.Name)
-			}
-			out = append(out, article{
-				Title:   it.Title,
-				URL:     it.URL,
-				Date:    t,
-				Tags:    tags,
-				Source:  "Qiita",
-				Summary: summarize(it.Body),
-				Slug:    "qiita-" + it.ID,
-			})
-		}
-		if len(items) < 100 {
-			break
-		}
-	}
-	return out, nil
 }
 
 // --- Zenn ------------------------------------------------------------------

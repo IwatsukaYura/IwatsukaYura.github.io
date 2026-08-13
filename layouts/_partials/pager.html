@@ -1,0 +1,9 @@
+{{- with .Paginator }}
+{{- if gt .TotalPages 1 }}
+<nav class="pager" aria-label="ページ送り">
+  {{- if .HasPrev }}<a class="pager__link" href="{{ .Prev.URL }}" rel="prev">&larr; newer</a>{{ else }}<span class="pager__link is-off">&larr; newer</span>{{ end }}
+  <span class="pager__count">{{ .PageNumber }} / {{ .TotalPages }}</span>
+  {{- if .HasNext }}<a class="pager__link" href="{{ .Next.URL }}" rel="next">older &rarr;</a>{{ else }}<span class="pager__link is-off">older &rarr;</span>{{ end }}
+</nav>
+{{- end }}
+{{- end }}

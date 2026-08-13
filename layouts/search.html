@@ -1,0 +1,18 @@
+{{- define "main" }}
+<div class="with-side">
+  <div class="with-side__main">
+    {{- partial "page-head.html" (dict "eyebrow" "search" "title" .Title) }}
+
+    <form class="search" role="search" onsubmit="return false">
+      <label class="visually-hidden" for="search-input">キーワード</label>
+      <svg class="search__icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4.3-4.3"/></svg>
+      <input class="search__input" id="search-input" type="search" autocomplete="off" autocapitalize="off"
+             spellcheck="false" placeholder="{{ .Params.placeholder | default "キーワードを入力" }}">
+    </form>
+
+    <p class="search__status" id="search-status" role="status" aria-live="polite"></p>
+    <div class="index index--flat" id="search-results" data-index="{{ "index.json" | relURL }}"></div>
+  </div>
+  {{- partial "sidebar.html" . }}
+</div>
+{{- end }}

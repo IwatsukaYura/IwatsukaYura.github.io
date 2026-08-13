@@ -1,0 +1,6 @@
+{{- /* 一覧系ページの見出し。dict "eyebrow" "…" "title" "…" "note" "…" を渡す */ -}}
+<header class="page-head">
+  {{- with .eyebrow }}<p class="page-head__eyebrow">{{ . }}</p>{{ end }}
+  <h1 class="page-head__title">{{ .title }}</h1>
+  {{- with .note }}<p class="page-head__note">{{ . }}</p>{{ end }}
+</header>

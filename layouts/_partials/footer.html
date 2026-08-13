@@ -1,0 +1,10 @@
+<footer class="colophon">
+  <div class="shell colophon__inner">
+    <p class="colophon__mark">© {{ now.Format "2006" }} {{ site.Params.author }}</p>
+    <nav class="colophon__nav" aria-label="フッター">
+      <a href="{{ "sources/" | relURL }}">sources</a>
+      {{- with site.Home.OutputFormats.Get "rss" }}<a href="{{ .RelPermalink }}">rss</a>{{ end }}
+      {{- with site.Params.profile.github }}<a href="{{ . }}" rel="me noopener" target="_blank">github</a>{{ end }}
+    </nav>
+  </div>
+</footer>

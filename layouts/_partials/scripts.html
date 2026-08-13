@@ -1,0 +1,10 @@
+{{- $js := slice (resources.Get "js/theme.js") (resources.Get "js/code.js") (resources.Get "js/toc.js") | resources.Concat "js/site.js" }}
+{{- if hugo.IsProduction }}{{ $js = $js | minify | fingerprint }}{{ end }}
+<script src="{{ $js.RelPermalink }}" defer></script>
+
+{{- if eq .Layout "search" }}
+{{- $search := slice (resources.Get "js/vendor/fuse.min.js") (resources.Get "js/search.js") | resources.Concat "js/search.bundle.js" }}
+{{- if hugo.IsProduction }}{{ $search = $search | minify | fingerprint }}{{ end }}
+<script id="search-config" type="application/json">{{ site.Params.fuseOpts | jsonify | safeJS }}</script>
+<script src="{{ $search.RelPermalink }}" defer></script>
+{{- end }}

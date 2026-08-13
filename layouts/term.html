@@ -1,14 +1,13 @@
 {{- define "main" }}
 {{- $paginator := .Paginate .RegularPages }}
+{{- $kind := cond (eq .Data.Plural "sources") "source" "tag" }}
 
 <div class="with-side">
   <div class="with-side__main">
     {{- partial "page-head.html" (dict
-      "eyebrow" "section"
+      "eyebrow" $kind
       "title" .Title
       "note" (printf "%d posts" (len .RegularPages))) }}
-
-    {{- with .Content }}<div class="page-head__body prose">{{ . }}</div>{{ end }}
 
     {{- partial "index-list.html" (dict "pages" $paginator.Pages) }}
     {{- partial "pager.html" . }}

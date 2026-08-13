@@ -1,0 +1,43 @@
+{{- $title := cond .IsHome site.Title (printf "%s — %s" (.Title | plainify) site.Title) -}}
+{{- $desc := .Description | default .Summary | default site.Params.description | plainify | truncate 160 -}}
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $desc }}">
+<meta name="author" content="{{ site.Params.author }}">
+<link rel="canonical" href="{{ .Params.externalUrl | default .Permalink }}">
+<link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
+
+<meta property="og:type" content="{{ cond .IsPage "article" "website" }}">
+<meta property="og:title" content="{{ $title }}">
+<meta property="og:description" content="{{ $desc }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta name="twitter:card" content="summary">
+
+{{- with .OutputFormats.Get "rss" }}
+<link rel="alternate" type="application/rss+xml" href="{{ .Permalink }}" title="{{ site.Title }}">
+{{- end }}
+
+{{/* テーマ切替のちらつき防止：CSS より先に data-theme を確定させる */}}
+<script>
+  (function () {
+    try {
+      var t = localStorage.getItem("theme");
+      if (t === "light" || t === "dark") document.documentElement.dataset.theme = t;
+    } catch (e) {}
+  })();
+</script>
+
+{{- $css := slice (resources.Get "css/main.css") (resources.Get "css/chroma.css") | resources.Concat "css/site.css" }}
+{{- if hugo.IsProduction }}{{ $css = $css | minify | fingerprint }}{{ end }}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}"{{ with $css.Data.Integrity }} integrity="{{ . }}"{{ end }}>
+
+<link rel="preload" as="font" type="font/woff2" href="{{ "fonts/inter-latin-var.woff2" | relURL }}" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="{{ "fonts/ibm-plex-mono-latin-400.woff2" | relURL }}" crossorigin>
+
+{{/* 外部記事(Zenn)ページに直接アクセスされた場合は即座に元記事へリダイレクト */}}
+{{- with .Params.externalUrl }}
+<meta http-equiv="refresh" content="0; url={{ . }}">
+<script>window.location.replace({{ . | jsonify }});</script>
+{{- end }}

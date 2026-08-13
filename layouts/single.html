@@ -1,0 +1,59 @@
+{{- define "main" }}
+{{- $hasToc := and (ne (.Param "hideToc") true) (ge (len .Fragments.Identifiers) 2) }}
+
+<div class="post-wrap{{ if $hasToc }} has-toc{{ end }}">
+  <article class="post">
+
+    <header class="post__head">
+      <p class="post__kicker">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+        <span class="sep" aria-hidden="true">/</span>
+        <span>{{ cond (lt .ReadingTime 1) 1 .ReadingTime }} min</span>
+        {{- with .Params.source }}<span class="sep" aria-hidden="true">/</span><span>{{ lower . }}</span>{{ end }}
+      </p>
+      <h1 class="post__title">{{ .Title }}</h1>
+      {{- with .Params.summary }}<p class="post__lead">{{ . }}</p>{{ end }}
+    </header>
+
+    <div class="prose">
+      {{- .Content }}
+    </div>
+
+    <footer class="post__foot">
+      {{- with .GetTerms "tags" }}
+      <ul class="post__tags">
+        {{- range . }}<li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>{{ end }}
+      </ul>
+      {{- end }}
+
+      {{- $prev := .PrevInSection }}{{ $next := .NextInSection }}
+      {{- if or $prev $next }}
+      <nav class="post__nav" aria-label="前後の記事">
+        {{- with $next }}
+        <a class="post__nav-item" href="{{ .RelPermalink }}" rel="next">
+          <span class="post__nav-label">&larr; newer</span>
+          <span class="post__nav-title">{{ .Title }}</span>
+        </a>
+        {{- else }}<span></span>{{ end }}
+        {{- with $prev }}
+        <a class="post__nav-item is-right" href="{{ .RelPermalink }}" rel="prev">
+          <span class="post__nav-label">older &rarr;</span>
+          <span class="post__nav-title">{{ .Title }}</span>
+        </a>
+        {{- end }}
+      </nav>
+      {{- end }}
+    </footer>
+
+  </article>
+
+  {{- if $hasToc }}
+  <aside class="post-toc" aria-label="目次">
+    <div class="post-toc__inner">
+      <p class="post-toc__label">contents</p>
+      {{ .TableOfContents }}
+    </div>
+  </aside>
+  {{- end }}
+</div>
+{{- end }}

@@ -1,45 +1,20 @@
-{{- define "main" -}}
-<article class="post-single">
-  <header class="post-header">
-    <h1 class="post-title entry-hint-parent">{{ .Title }}</h1>
-    <div class="post-meta">
-      {{- with .Params.source -}}
-        <span class="external-badge external-badge--{{ lower . }}">{{ . }}</span>
-      {{- end }}
-      {{- with .Date }}<time>{{ .Format "2006-01-02" }}</time>{{ end -}}
-    </div>
+{{- /* 外部記事は head.html で元記事へリダイレクトされる。これはその前に一瞬見えるフォールバック */ -}}
+{{- define "main" }}
+<article class="post post--stub">
+  <header class="post__head">
+    <p class="post__kicker">
+      <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+      {{- with .Params.source }}<span class="sep" aria-hidden="true">/</span><span>{{ lower . }}</span>{{ end }}
+    </p>
+    <h1 class="post__title">{{ .Title }}</h1>
+    {{- with .Params.summary }}<p class="post__lead">{{ . }}</p>{{ end }}
   </header>
 
-  <div class="post-content">
-    {{ with .Params.summary }}<p>{{ . }}</p>{{ end }}
-
-    {{ with .Params.externalUrl }}
-    <p style="margin-top:1.5rem;">
-      <a class="external-cta" href="{{ . }}" target="_blank" rel="noopener noreferrer">
-        {{ $.Params.source | default "元記事" }} で全文を読む →
-      </a>
-    </p>
-    <p class="external-note">この記事は外部サイト（{{ $.Params.source }}）で公開されています。上のボタンから元記事へ移動します。</p>
-    {{ end }}
-  </div>
-
-  <footer class="post-footer">
-    {{- with .GetTerms "tags" }}
-    <ul class="post-tags">
-      {{- range . }}
-      <li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>
-      {{- end }}
-    </ul>
-    {{- end }}
-  </footer>
+  {{- with .Params.externalUrl }}
+  <p class="stub__cta">
+    <a href="{{ . }}" target="_blank" rel="noopener noreferrer">{{ lower ($.Params.source | default "元サイト") }} で全文を読む &#8599;</a>
+  </p>
+  <p class="stub__note">この記事は {{ $.Params.source }} で公開されています。自動で移動しない場合は上のリンクを開いてください。</p>
+  {{- end }}
 </article>
-
-<style>
-  .external-badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:12px;font-weight:600;color:#fff;margin-right:6px;vertical-align:middle}
-  .external-badge--qiita{background:#55c500}
-  .external-badge--zenn{background:#3ea8ff}
-  .external-cta{display:inline-block;padding:10px 18px;border-radius:8px;background:var(--primary);color:var(--theme);font-weight:600;text-decoration:none}
-  .external-cta:hover{opacity:.85}
-  .external-note{color:var(--secondary);font-size:.9em;margin-top:.75rem}
-</style>
-{{- end -}}
+{{- end }}

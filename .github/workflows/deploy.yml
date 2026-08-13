@@ -4,7 +4,7 @@ on:
   # main への push でデプロイ
   push:
     branches: ["main"]
-  # 毎日 06:00 JST (21:00 UTC) に外部記事(Qiita/Zenn)を取り込んで再デプロイ
+  # 毎日 06:00 JST (21:00 UTC) に外部記事(Zenn)を取り込んで再デプロイ
   schedule:
     - cron: "0 21 * * *"
   # 手動実行
@@ -49,13 +49,10 @@ jobs:
           sudo dpkg -i "${RUNNER_TEMP}/hugo.deb"
           hugo version
 
-      - name: Fetch external articles (Qiita / Zenn)
+      - name: Fetch external articles (Zenn)
         env:
           # 任意: Secrets に設定すると config/sources.json より優先されます
-          QIITA_USER: ${{ secrets.QIITA_USER }}
           ZENN_USER: ${{ secrets.ZENN_USER }}
-          # 任意: Qiita API のレート制限を緩和するトークン
-          QIITA_TOKEN: ${{ secrets.QIITA_TOKEN }}
         run: |
           cd tools/fetch-external
           go run .

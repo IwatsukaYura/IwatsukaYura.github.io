@@ -2,17 +2,14 @@ baseURL = "https://iwatsukayura.github.io/"
 locale = "ja-jp"
 defaultContentLanguage = "ja"
 title = "Iwatsuka Yura Blog"
-theme = ["github.com/adityatelange/hugo-PaperMod"]
 
-# きれいなURL・SEO
 enableRobotsTXT = true
 enableEmoji = true
 enableGitInfo = false
 pygmentsUseClasses = true
 
-# ページネーション
 [pagination]
-  pagerSize = 10
+  pagerSize = 12
 
 # タクソノミー：タグ + 外部投稿元(source)でフィルタ可能に
 [taxonomies]
@@ -24,78 +21,56 @@ pygmentsUseClasses = true
 
 [params]
   env = "production"
-  description = "技術ブログ。Qiita / Zenn の投稿もここに集約しています。"
+  description = "クラウドとインフラの技術ブログ。Zenn の投稿もここに集約しています。"
   author = "Iwatsuka Yura"
   mainSections = ["posts", "external"]
-  defaultTheme = "auto"
-  ShowReadingTime = true
-  ShowShareButtons = true
-  ShowPostNavLinks = true
-  ShowBreadCrumbs = true
-  ShowCodeCopyButtons = true
-  ShowToc = true
-  ShowRssButtonInSectionTermList = true
-  displayFullLangName = true
+  brand = "iwatsuka yura"
 
-  # 左サイドバーのプロフィールカード
+  # サイドバーのプロフィール
   [params.profile]
-    avatar = "https://github.com/IwatsukaYura.png"  # GitHub アバターを利用（画像を static/ に置いて差し替え可）
-    bio = "3-shake のエンジニア。クラウド / インフラ周りを中心に技術記事を書いています。"
+    avatar = "https://github.com/IwatsukaYura.png"
+    name = "Iwatsuka Yura"
+    role = "3-shake / cloud infra"
+    bio = "クラウドとインフラを中心に技術記事を書いています。"
+    github = "https://github.com/IwatsukaYura"
 
-  [params.homeInfoParams]
-    Title = "Iwatsuka Yura Blog 👋"
-    Content = "技術記事を書いています。自分で書いた記事に加え、Qiita・Zenn の投稿もタグや年月で横断的に管理・検索できます。"
-
-  [[params.socialIcons]]
-    name = "github"
-    url = "https://github.com/IwatsukaYura"
-  [[params.socialIcons]]
-    name = "rss"
-    url = "index.xml"
-
-  # 検索ページ用（Fuse.js）
+  # 検索（Fuse.js）
   [params.fuseOpts]
     isCaseSensitive = false
     shouldSort = true
-    location = 0
-    distance = 1000
-    threshold = 0.4
-    minMatchCharLength = 0
-    keys = ["title", "permalink", "summary", "content"]
+    ignoreLocation = true
+    threshold = 0.35
+    minMatchCharLength = 1
+    keys = ["title", "summary", "tags", "content"]
 
-# メニュー
-[[menu.main]]
-  identifier = "posts"
-  name = "記事"
-  url = "/posts/"
-  weight = 10
-[[menu.main]]
-  identifier = "archives"
-  name = "アーカイブ"
-  url = "/archives/"
-  weight = 20
-[[menu.main]]
-  identifier = "tags"
-  name = "タグ"
-  url = "/tags/"
-  weight = 30
-[[menu.main]]
-  identifier = "sources"
-  name = "投稿元"
-  url = "/sources/"
-  weight = 40
-[[menu.main]]
-  identifier = "search"
-  name = "検索"
-  url = "/search/"
-  weight = 50
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "posts"
+    url = "/posts/"
+    weight = 10
+  [[menu.main]]
+    identifier = "tags"
+    name = "tags"
+    url = "/tags/"
+    weight = 20
+  [[menu.main]]
+    identifier = "archives"
+    name = "archive"
+    url = "/archives/"
+    weight = 30
 
 [markup]
   [markup.highlight]
     noClasses = false
-    lineNos = true
+    lineNos = false
     codeFences = true
     guessSyntax = true
+    tabWidth = 2
+  [markup.tableOfContents]
+    startLevel = 2
+    endLevel = 3
+    ordered = false
   [markup.goldmark.renderer]
     unsafe = true   # 記事内の生HTMLを許可
 

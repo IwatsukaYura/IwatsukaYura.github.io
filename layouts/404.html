@@ -1,0 +1,11 @@
+{{- define "main" }}
+<div class="notfound">
+  <p class="notfound__code">404</p>
+  <h1 class="notfound__title">ページが見つかりません</h1>
+  <p class="notfound__body">URL が変わったか、記事が削除された可能性があります。</p>
+  <p class="notfound__links">
+    <a href="{{ "/" | relURL }}">記事の索引へ戻る</a>
+    <a href="{{ "search/" | relURL }}">検索する</a>
+  </p>
+</div>
+{{- end }}

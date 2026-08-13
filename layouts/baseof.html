@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="{{  site.Language.Lang | default "ja" }}">
+<head>
+  {{- partial "head.html" . }}
+</head>
+<body>
+  <a class="skip" href="#main">本文へスキップ</a>
+  {{- partial "header.html" . }}
+  <main id="main" class="shell">
+    {{- block "main" . }}{{ end }}
+  </main>
+  {{- partial "footer.html" . }}
+  {{- partial "scripts.html" . }}
+</body>
+</html>

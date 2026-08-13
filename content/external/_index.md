@@ -1,4 +1,4 @@
 ---
-title: "外部投稿（Qiita / Zenn）"
-summary: "Qiita・Zenn に投稿した記事を集約しています。カードから元記事へ移動できます。"
+title: "外部投稿（Zenn）"
+summary: "Zenn に投稿した記事を集約しています。一覧から元記事へ移動できます。"
 ---

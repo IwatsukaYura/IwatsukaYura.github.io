@@ -1,0 +1,42 @@
+{{- $pages := where site.RegularPages "Type" "in" site.Params.mainSections -}}
+{{- $p := site.Params.profile -}}
+<aside class="side">
+
+  <div class="side__profile">
+    {{- with $p.avatar }}
+    <img class="side__avatar" src="{{ . }}" alt="{{ $p.name }}" width="72" height="72" loading="lazy" decoding="async">
+    {{- end }}
+    <p class="side__name">{{ $p.name | default site.Params.author }}</p>
+    {{- with $p.role }}<p class="side__role">{{ . }}</p>{{ end }}
+    {{- with $p.bio }}<p class="side__bio">{{ . }}</p>{{ end }}
+    <p class="side__links">
+      {{- with $p.github }}<a href="{{ . }}" rel="me noopener" target="_blank">github</a>{{ end }}
+      {{- with site.Home.OutputFormats.Get "rss" }}<a href="{{ .RelPermalink }}">rss</a>{{ end }}
+    </p>
+  </div>
+
+  {{- with site.Taxonomies.tags }}
+  <section class="side__block">
+    <h2 class="side__label">tags</h2>
+    <ul class="side__tags">
+      {{- range first 14 .ByCount }}
+      <li><a href="{{ .Page.RelPermalink }}">{{ .Page.LinkTitle }}<span class="side__count">{{ .Count }}</span></a></li>
+      {{- end }}
+    </ul>
+    {{- if gt (len .) 14 }}<p class="side__more"><a href="{{ "tags/" | relURL }}">すべてのタグ &rarr;</a></p>{{ end }}
+  </section>
+  {{- end }}
+
+  <section class="side__block">
+    <h2 class="side__label">archive</h2>
+    <ul class="side__rows">
+      {{- range $pages.GroupByDate "2006" }}
+      {{- if ne .Key "0001" }}
+      <li><a href="{{ (printf "archives/#%s" .Key) | relURL }}"><span>{{ .Key }}</span><span class="side__count">{{ len .Pages }}</span></a></li>
+      {{- end }}
+      {{- end }}
+    </ul>
+    <p class="side__more"><a href="{{ "archives/" | relURL }}">すべてのアーカイブ &rarr;</a></p>
+  </section>
+
+</aside>

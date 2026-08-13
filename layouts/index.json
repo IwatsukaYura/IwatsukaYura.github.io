@@ -1,8 +1,19 @@
-{{- $.Scratch.Add "index" slice -}}
-{{- range site.RegularPages -}}
-    {{- if and (not .Params.searchHidden) (ne .Layout `archives`) (ne .Layout `search`) }}
-    {{- $permalink := .Params.externalUrl | default .Permalink -}}
-    {{- $.Scratch.Add "index" (dict "title" .Title "content" .Plain "permalink" $permalink "summary" .Summary) -}}
-    {{- end }}
+{{- $index := slice -}}
+{{- range where site.RegularPages "Type" "in" site.Params.mainSections -}}
+  {{- if not .Params.searchHidden -}}
+    {{- $tags := slice -}}
+    {{- range .GetTerms "tags" }}{{ $tags = $tags | append .LinkTitle }}{{ end -}}
+    {{- $index = $index | append (dict
+        "title" .Title
+        "permalink" (.Params.externalUrl | default .RelPermalink)
+        "external" (ne .Params.externalUrl nil)
+        "source" (.Params.source | default "")
+        "date" (.Date.Format "2006.01.02")
+        "readingTime" (cond (lt .ReadingTime 1) 1 .ReadingTime)
+        "tags" $tags
+        "summary" (.Summary | plainify | htmlUnescape | chomp)
+        "content" (.Plain | htmlUnescape | truncate 6000)
+      ) -}}
+  {{- end -}}
 {{- end -}}
-{{- $.Scratch.Get "index" | jsonify -}}
+{{- $index | jsonify -}}
