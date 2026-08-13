@@ -1,0 +1,216 @@
+# 記事の執筆〜公開を mise のタスクに寄せている。
+# 主役は new / dev / publish の 3 つ。`mise tasks` で一覧が出る。
+
+[tools]
+hugo-extended = "0.164.0"   # CI もこの値を読む（.github/workflows/deploy.yml）
+go = "1.26.4"               # tools/fetch-external 用
+
+[env]
+TZ = "Asia/Tokyo"   # date と Hugo の now を JST に固定する（URL の年月がぶれないように）
+
+[tasks.new]
+description = "記事の雛形を作る（ファイル名がそのまま URL になる）"
+quiet = true
+usage = '''
+arg "<name>" help="ファイル名 = URL のスラッグ。英小文字・数字・ハイフンのみ（例: nfc-card-part2）"
+flag "-t --title <title>" help="記事タイトル（日本語可）。省略時はファイル名から生成する"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+name="${usage_name}"
+if ! printf '%s' "$name" | grep -Eq '^[a-z0-9]+(-[a-z0-9]+)*$'; then
+  echo "そのまま URL になるので、英小文字・数字・ハイフンだけにしてください: $name" >&2
+  exit 1
+fi
+
+file="content/posts/${name}.md"
+if [ -e "$file" ]; then
+  echo "既に存在します: $file" >&2
+  exit 1
+fi
+
+if ! POST_TITLE="${usage_title:-}" hugo new content "posts/${name}.md"; then
+  # hugo は失敗しても空ファイルを置いていくことがあるので後始末する
+  [ -s "$file" ] || rm -f "$file"
+  exit 1
+fi
+
+echo
+echo "公開後の URL: /$(date +%Y)/$(date +%m)/${name}/"
+echo "本文を書いたら: mise run publish ${name}"
+'''
+
+[tasks.fetch]
+description = "Zenn の記事を取り込んで content/external/ を再生成する"
+dir = "tools/fetch-external"
+run = "go run ."
+
+[tasks.dev]
+description = "ローカルプレビュー（下書き・予約投稿込み）"
+quiet = true
+raw = true
+run = '''
+#!/usr/bin/env bash
+set -uo pipefail
+
+# 外部記事は生成物で Git 管理外。取れなくてもプレビューは止めない
+mise run fetch || echo "warn: Zenn の取り込みに失敗しました。手元にある外部記事のまま起動します" >&2
+
+exec hugo server -D -F --navigateToChanged --disableFastRender
+'''
+
+[tasks.drafts]
+description = "下書きと予約投稿の一覧"
+quiet = true
+run = '''
+#!/usr/bin/env bash
+echo "--- 下書き ---"
+hugo list drafts
+echo "--- 予約投稿 ---"
+hugo list future
+'''
+
+[tasks.build]
+description = "本番と同じビルド（公開前の確認・CI からも呼ぶ）"
+run = "hugo --gc --minify"
+
+[tasks.publish]
+description = "下書きを公開する（draft 解除 → ビルド確認 → commit → push → CI 監視）"
+quiet = true
+raw = true
+usage = '''
+arg "<name>" help="content/posts/<name>.md の <name>"
+'''
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+file="content/posts/${usage_name}.md"
+if [ ! -f "$file" ]; then
+  echo "見つかりません: $file" >&2
+  echo "--- 下書き一覧 ---" >&2
+  hugo list drafts >&2
+  exit 1
+fi
+
+branch=$(git branch --show-current)
+if [ "$branch" != "main" ]; then
+  echo "main 以外のブランチにいます: $branch" >&2
+  echo "deploy.yml は main への push でしか動かないため中止します" >&2
+  exit 1
+fi
+
+# front matter（先頭の --- から次の --- まで）の中だけを見る。
+# 本文のコードブロックに draft: や title: が出てきても壊さないため。
+in_front_matter() {
+  awk -v pat="$1" '
+    NR == 1 && $0 == "---" { fm = 1; next }
+    fm && $0 == "---"      { fm = 0 }
+    fm && $0 == pat        { found = 1 }
+    END { exit(found ? 0 : 1) }
+  ' "$file"
+}
+
+set_draft() {
+  local tmp
+  tmp=$(mktemp)
+  awk -v from="draft: $1" -v to="draft: $2" '
+    NR == 1 && $0 == "---" { fm = 1; print; next }
+    fm && $0 == "---"      { fm = 0; print; next }
+    fm && $0 == from       { print to; next }
+    { print }
+  ' "$file" > "$tmp"
+  cat "$tmp" > "$file"   # inode を保つ（エディタや hugo server の監視を切らさない）
+  rm -f "$tmp"
+}
+
+flipped=0
+if in_front_matter "draft: true"; then
+  set_draft true false
+  flipped=1
+  echo "draft を解除しました: $file"
+else
+  echo "draft: true ではないため、修正の再公開として続行します"
+fi
+
+# 中止・失敗したら draft の解除を巻き戻して元の状態に戻す
+restore() {
+  if [ "$flipped" = "1" ]; then
+    set_draft false true
+    echo "draft: true に戻しました"
+  fi
+}
+
+title=$(awk '
+  NR == 1 && $0 == "---" { fm = 1; next }
+  fm && $0 == "---"      { exit }
+  fm && /^title:/ {
+    sub(/^title:[[:space:]]*/, "")
+    gsub(/^"|"$/, "")
+    gsub(/\\"/, "\"")
+    print
+    exit
+  }
+' "$file")
+
+echo "ビルド確認中..."
+if ! mise run build >/dev/null; then
+  restore
+  echo "ビルドに失敗したので公開を中止しました" >&2
+  exit 1
+fi
+echo "ビルド OK"
+
+echo
+git status --short
+echo
+printf '「%s」を公開して push しますか? [y/N] ' "$title"
+read -r ans
+if [ "$ans" != "y" ] && [ "$ans" != "Y" ]; then
+  restore
+  echo "中止しました"
+  exit 0
+fi
+
+git add -- "$file"
+git commit -m "post: ${title}"
+git push origin main
+
+mise run status
+'''
+
+[tasks.status]
+description = "直近のデプロイの結果を見届ける"
+quiet = true
+raw = true
+run = '''
+#!/usr/bin/env bash
+set -euo pipefail
+
+sha=$(git rev-parse HEAD)
+id=""
+for _ in $(seq 1 20); do
+  id=$(gh run list --workflow deploy.yml -c "$sha" -L 1 --json databaseId --jq '.[0].databaseId // empty')
+  [ -n "$id" ] && break
+  sleep 3
+done
+
+if [ -z "$id" ]; then
+  echo "HEAD のワークフローが見つからないため、直近の run を表示します"
+  id=$(gh run list -L 1 --json databaseId --jq '.[0].databaseId')
+fi
+
+if ! gh run watch "$id" --exit-status; then
+  echo "--- 失敗ログ ---" >&2
+  gh run view "$id" --log-failed
+  exit 1
+fi
+echo "デプロイ完了: https://iwatsukayura.github.io/"
+'''
+
+[tasks.vet]
+description = "取り込みツールの静的チェック"
+dir = "tools/fetch-external"
+run = "go vet ./."

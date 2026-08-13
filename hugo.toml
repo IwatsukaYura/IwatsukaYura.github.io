@@ -57,6 +57,11 @@ enableEmoji = true
     url = "/archives/"
     weight = 30
 
+# archetypes/posts.md が記事タイトルを環境変数から受け取るための許可
+# （既定値 ^HUGO_ と ^CI$ を消さないよう、まとめて再掲している）
+[security.funcs]
+  getenv = ['^HUGO_', '^CI$', '^POST_TITLE$']
+
 [markup]
   [markup.highlight]
     noClasses = false
@@ -72,6 +77,8 @@ enableEmoji = true
     unsafe = true   # 記事内の生HTMLを許可
 
 # パーマリンク：/YYYY/MM/slug/ で年月が URL に反映
+# :slugorcontentbasename = front matter の slug、無ければファイル名。
+# ファイル名を英語にしておけば slug を毎回書かなくて済む。
 [permalinks]
-  posts = "/:year/:month/:slug/"
+  posts = "/:year/:month/:slugorcontentbasename/"
   external = "/external/:slug/"

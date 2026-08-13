@@ -6,6 +6,8 @@ tags:
   - お知らせ
   - Hugo
 summary: "GitHub Pages 上に Hugo でブログを構築しました。Zenn の記事もここに集約しています。"
+aliases:
+  - "/2026/07/ブログをはじめました/"
 ---
 
 はじめまして。このブログは [Hugo](https://gohugo.io/) と [PaperMod](https://github.com/adityatelange/hugo-PaperMod) テーマを使い、GitHub Pages 上で完全無料・CI/CD 付きで運用しています。

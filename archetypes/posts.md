@@ -1,5 +1,5 @@
 ---
-title: "{{ replace .File.ContentBaseName `-` ` ` | title }}"
+title: {{ with getenv "POST_TITLE" }}{{ . | jsonify }}{{ else }}{{ replace .File.ContentBaseName `-` ` ` | title | jsonify }}{{ end }}
 date: {{ .Date }}
 draft: true
 tags: []

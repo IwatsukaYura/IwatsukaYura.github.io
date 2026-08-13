@@ -30,35 +30,37 @@ GitHub 側の設定: **Settings → Pages → Build and deployment → Source �
 
 ## 記事を書く
 
+[mise](https://mise.jdx.dev/) のタスクで完結します（初回のみ `mise trust && mise install`）。
+
 ```bash
-hugo new content posts/my-first-post.md   # content/posts/ に雛形が生成される
+mise run new nfc-card -t "NFC名刺の続編"   # content/posts/nfc-card.md を生成
+mise run dev                               # http://localhost:1313 で下書き込みプレビュー
+mise run publish nfc-card                  # 公開（確認プロンプトあり）
 ```
 
-front matter 例:
+`mise run new` の第 1 引数がファイル名かつ URL になります（`/2026/08/nfc-card/`）。タイトルは `-t` で日本語のまま渡せます。
+
+生成される front matter:
 
 ```yaml
 ---
-title: "記事タイトル"
-date: 2026-07-14T10:00:00+09:00
-draft: false
-tags: ["Go", "Hugo"]
-summary: "一覧に表示される要約"
+title: "NFC名刺の続編"
+date: 2026-08-13T12:00:00+09:00
+draft: true
+tags: []
+summary: ""
 ---
 ```
 
-`draft: false` にして `git push` すると GitHub Actions がビルド・デプロイします。
+`tags` と `summary` を埋めてから `mise run publish` すると、draft 解除 → 本番同等ビルドでの確認 → コミット → push → デプロイ監視までを一括で行います。
 
-## ローカルで確認
-
-```bash
-hugo server            # http://localhost:1313
-```
-
-## 外部記事を手元で取り込む
+## その他のタスク
 
 ```bash
-cd tools/fetch-external && go run .
-# content/external/ に Zenn の記事が Markdown として生成される
+mise run fetch     # Zenn を取り込んで content/external/ を再生成
+mise run build     # 本番と同じビルド
+mise run status    # 直近のデプロイ結果を見届ける
+mise tasks         # タスク一覧
 ```
 
 ## デプロイの仕組み（CI/CD）
@@ -66,9 +68,9 @@ cd tools/fetch-external && go run .
 `.github/workflows/deploy.yml`:
 
 1. `main` への push / 毎日 06:00 JST / 手動実行 で起動
-2. Go で `tools/fetch-external` を実行し Zenn の最新記事を取得
-3. `hugo --minify` でビルド
-4. GitHub Pages へデプロイ
+2. `jdx/mise-action` が `mise.toml` の hugo / go を用意（手元と同じバージョン）
+3. `mise run fetch` で Zenn の最新記事を取得
+4. `mise run build` でビルドし、GitHub Pages へデプロイ
 
 毎日のスケジュール実行により、Zenn に新規投稿すると翌朝には自動でサイトへ反映されます。
 
@@ -83,4 +85,5 @@ cd tools/fetch-external && go run .
 | `layouts/` | ページテンプレート一式（テーマ非依存） |
 | `assets/` | CSS / JS（ビルド時に連結・minify） |
 | `.github/workflows/deploy.yml` | CI/CD |
+| `mise.toml` | ツールのバージョンと執筆・公開タスク |
 | `hugo.toml` | サイト設定 |
