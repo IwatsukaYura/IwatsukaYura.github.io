@@ -31,6 +31,11 @@ enableEmoji = true
     bio = "クラウドとインフラを中心に技術記事を書いています。"
     github = "https://github.com/IwatsukaYura"
 
+  # 執筆ページ（/admin/）がコミットする先
+  [params.admin]
+    repo = "IwatsukaYura/IwatsukaYura.github.io"
+    branch = "main"
+
   # 検索（Fuse.js）
   [params.fuseOpts]
     isCaseSensitive = false

@@ -5,6 +5,9 @@
 <title>{{ $title }}</title>
 <meta name="description" content="{{ $desc }}">
 <meta name="author" content="{{ site.Params.author }}">
+{{- if .Params.noindex }}
+<meta name="robots" content="noindex, nofollow">
+{{- end }}
 <link rel="canonical" href="{{ .Params.externalUrl | default .Permalink }}">
 <link rel="icon" href="{{ "favicon.svg" | relURL }}" type="image/svg+xml">
 

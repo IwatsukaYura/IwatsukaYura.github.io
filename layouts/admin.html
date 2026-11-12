@@ -1,0 +1,107 @@
+{{- define "main" }}
+{{- /* 記事の執筆ページ。サーバーは持たず、ブラウザから GitHub API で content/posts/ を直接コミットする（assets/js/admin.js） */ -}}
+<div class="admin" id="admin"
+     data-repo="{{ site.Params.admin.repo }}"
+     data-branch="{{ site.Params.admin.branch }}"
+     data-site="{{ site.BaseURL }}">
+  {{- partial "page-head.html" (dict "eyebrow" "admin" "title" .Title "note" site.Params.admin.repo) }}
+
+  <noscript><p class="admin__notice">このページは JavaScript が必要です。</p></noscript>
+
+  <p class="admin__status" id="admin-status" role="status" aria-live="polite"></p>
+
+  {{- /* 未接続 */}}
+  <section class="admin__auth" id="admin-auth" hidden>
+    <form class="admin__token" id="token-form">
+      <label class="admin__label" for="token-input">GitHub token</label>
+      <div class="admin__row">
+        <input class="admin__input" id="token-input" type="password" autocomplete="off" spellcheck="false"
+               placeholder="github_pat_…" required>
+        <button class="admin__btn is-primary" type="submit">接続</button>
+      </div>
+    </form>
+    <p class="admin__hint">
+      fine-grained personal access token を使います。Repository access を <code>{{ site.Params.admin.repo }}</code> のみに絞り、
+      Permissions は <code>Contents: Read and write</code> だけを付けてください。
+      トークンはこのブラウザの localStorage にだけ保存されます。
+      <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">トークンを作る ↗</a>
+    </p>
+  </section>
+
+  {{- /* 記事一覧 */}}
+  <section class="admin__home" id="admin-home" hidden>
+    <div class="admin__toolbar">
+      <button class="admin__btn is-primary" type="button" id="new-post">新しい記事</button>
+      <span class="admin__spacer"></span>
+      <button class="admin__btn" type="button" id="reload-list">再読み込み</button>
+      <button class="admin__btn" type="button" id="logout">接続を解除</button>
+    </div>
+    <ul class="admin-list" id="post-list"></ul>
+  </section>
+
+  {{- /* エディタ */}}
+  <form class="admin__editor" id="editor" hidden novalidate>
+    <div class="admin__toolbar">
+      <button class="admin__btn" type="button" id="back">&larr; 一覧</button>
+      <span class="admin__state" id="post-state"></span>
+    </div>
+
+    <div class="admin__restore" id="restore" hidden>
+      <span id="restore-text"></span>
+      <button class="admin__btn is-primary" type="button" id="restore-apply">復元する</button>
+      <button class="admin__btn" type="button" id="restore-discard">破棄</button>
+    </div>
+
+    <div class="admin__fields">
+      <div class="admin__field is-wide">
+        <label class="admin__label" for="f-title">タイトル</label>
+        <input class="admin__input is-title" id="f-title" type="text" autocomplete="off">
+      </div>
+      <div class="admin__field">
+        <label class="admin__label" for="f-name">URL 名</label>
+        <input class="admin__input is-mono" id="f-name" type="text" autocomplete="off" autocapitalize="off"
+               spellcheck="false" placeholder="my-new-post">
+        <p class="admin__hint" id="url-preview"></p>
+      </div>
+      <div class="admin__field">
+        <label class="admin__label" for="f-date">日付</label>
+        <input class="admin__input is-mono" id="f-date" type="text" autocomplete="off" spellcheck="false">
+      </div>
+      <div class="admin__field is-wide">
+        <label class="admin__label" for="f-tags">タグ（カンマ区切り）</label>
+        <input class="admin__input" id="f-tags" type="text" autocomplete="off" placeholder="Go, PostgreSQL">
+      </div>
+      <div class="admin__field is-wide">
+        <label class="admin__label" for="f-summary">要約</label>
+        <textarea class="admin__input" id="f-summary" rows="2"></textarea>
+      </div>
+      <details class="admin__field is-wide admin__more">
+        <summary>その他の front matter</summary>
+        <textarea class="admin__input is-mono" id="f-extra" rows="4" spellcheck="false"
+                  placeholder="hideToc: true"></textarea>
+        <p class="admin__hint">上の項目以外の front matter を YAML のまま書きます（aliases / slug / hideToc など）。</p>
+      </details>
+    </div>
+
+    <div class="admin__tabs" role="tablist" aria-label="表示の切り替え">
+      <button class="admin__tab is-current" type="button" data-pane="write">書く</button>
+      <button class="admin__tab" type="button" data-pane="preview">プレビュー</button>
+    </div>
+    <div class="admin__panes" id="panes" data-pane="write">
+      <div class="admin__pane is-write">
+        <textarea class="admin__body" id="f-body" spellcheck="false"
+                  placeholder="Markdown で本文を書きます。画像は貼り付けかドラッグ&ドロップでアップロードできます。"></textarea>
+        <label class="admin__btn admin__upload">
+          画像を追加<input type="file" id="f-image" accept="image/*" multiple hidden>
+        </label>
+      </div>
+      <div class="admin__pane is-preview prose" id="preview" aria-label="プレビュー"></div>
+    </div>
+
+    <div class="admin__actions">
+      <button class="admin__btn" type="button" id="save-draft">下書き保存</button>
+      <button class="admin__btn is-primary" type="button" id="save-publish">公開する</button>
+    </div>
+  </form>
+</div>
+{{- end }}

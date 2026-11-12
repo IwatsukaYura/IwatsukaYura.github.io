@@ -1094,6 +1094,304 @@ a.pager__link:hover {
   color: var(--mark);
 }
 
+/* ---------- 執筆ページ（/admin/） ---------- */
+.admin [hidden] {
+  display: none !important;
+}
+.admin code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+.admin__status {
+  min-height: 1.4em;
+  margin: -1.5rem 0 1.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ash);
+  overflow-wrap: anywhere;
+}
+.admin__status.is-error {
+  color: var(--ink);
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--mark);
+}
+.admin__status.is-ok {
+  color: var(--ink-soft);
+}
+.admin__status a,
+.admin__hint a {
+  color: var(--mark);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+}
+.admin__notice {
+  color: var(--ink-soft);
+}
+.admin__label {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: 0.6875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ash);
+}
+.admin__hint {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  line-height: 1.8;
+  color: var(--ash);
+}
+.admin__row,
+.admin__toolbar,
+.admin__actions,
+.admin__restore {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.admin__spacer {
+  flex: 1;
+}
+.admin__input {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 0.45rem 0;
+  background: none;
+  border: 0;
+  border-bottom: 1px solid var(--rule-strong);
+  border-radius: 0;
+  font: inherit;
+  color: inherit;
+  resize: vertical;
+  transition: border-color 0.15s;
+}
+.admin__row .admin__input {
+  flex: 1;
+}
+.admin__input:focus {
+  outline: none;
+  border-bottom-color: var(--mark);
+}
+.admin__input::placeholder,
+.admin__body::placeholder {
+  color: var(--ash);
+}
+.admin__input[readonly] {
+  color: var(--ash);
+  border-bottom-style: dashed;
+}
+.admin__input.is-title {
+  font-size: 1.375rem;
+  font-weight: 700;
+}
+.admin__input.is-mono {
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+}
+.admin__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.45rem 0.95rem;
+  border: 1px solid var(--rule-strong);
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.admin__btn:hover {
+  border-color: var(--ink);
+}
+.admin__btn.is-primary {
+  background: var(--mark);
+  border-color: var(--mark);
+  color: var(--paper);
+}
+.admin__btn.is-primary:hover {
+  background: color-mix(in srgb, var(--mark) 85%, var(--ink));
+}
+.admin__btn:disabled {
+  opacity: 0.5;
+  cursor: progress;
+}
+.admin__toolbar {
+  margin-bottom: 1.75rem;
+}
+.admin__state {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ash);
+  overflow-wrap: anywhere;
+}
+.admin__restore {
+  margin-bottom: 1.75rem;
+  padding: 0.85rem 1rem;
+  background: var(--wash);
+  font-size: 0.875rem;
+}
+.admin__restore span {
+  flex: 1 1 16rem;
+}
+
+/* 記事一覧 */
+.admin-list {
+  border-top: 1px solid var(--rule);
+}
+.admin-list li {
+  border-bottom: 1px solid var(--rule);
+}
+.admin-list__item {
+  display: grid;
+  gap: 0.3rem;
+  width: 100%;
+  padding: 1rem 0.875rem;
+  text-align: left;
+  transition: background-color 0.15s;
+}
+.admin-list__item:hover {
+  background: var(--wash);
+}
+.admin-list__title {
+  font-weight: 700;
+  line-height: 1.6;
+}
+.admin-list__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ash);
+  white-space: pre;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-list__badge {
+  padding: 0.05rem 0.45rem;
+  border: 1px solid var(--mark);
+  color: var(--mark);
+}
+.admin-list__badge.is-draft {
+  border-color: var(--rule-strong);
+  color: var(--ash);
+}
+.admin-list__empty {
+  padding: 1.5rem 0.875rem;
+  color: var(--ash);
+}
+
+/* エディタ */
+.admin__fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem 2rem;
+  margin-bottom: 2.25rem;
+}
+.admin__field.is-wide {
+  grid-column: 1 / -1;
+}
+.admin__more summary {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--ash);
+  cursor: pointer;
+}
+.admin__more[open] summary {
+  margin-bottom: 0.5rem;
+}
+.admin__tabs {
+  display: none;
+  gap: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+.admin__tab {
+  padding-bottom: 0.3rem;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  color: var(--ash);
+}
+.admin__tab.is-current {
+  border-bottom-color: var(--mark);
+  color: var(--ink);
+}
+.admin__panes {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+.admin__pane {
+  min-width: 0;
+}
+.admin__pane.is-write {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.admin__body {
+  flex: 1;
+  width: 100%;
+  min-height: 60vh;
+  padding: 1rem;
+  background: var(--wash);
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  line-height: 1.8;
+  color: inherit;
+  resize: vertical;
+  tab-size: 2;
+}
+.admin__body:focus {
+  outline: none;
+  border-color: var(--mark);
+}
+.admin__upload {
+  align-self: flex-start;
+}
+.admin__pane.is-preview {
+  max-height: 80vh;
+  overflow: auto;
+  padding: 0.25rem 1rem 1rem 0;
+  font-size: 1rem;
+}
+.admin__actions {
+  justify-content: flex-end;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+@media (max-width: 900px) {
+  .admin__tabs {
+    display: flex;
+  }
+  .admin__panes {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin__panes[data-pane="write"] .is-preview,
+  .admin__panes[data-pane="preview"] .is-write {
+    display: none;
+  }
+  .admin__pane.is-preview {
+    max-height: none;
+    padding-right: 0;
+  }
+}
+@media (max-width: 640px) {
+  .admin__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .admin__actions .admin__btn {
+    flex: 1;
+    justify-content: center;
+  }
+}
+
 /* ---------- レスポンシブ ---------- */
 @media (max-width: 900px) {
   .with-side {

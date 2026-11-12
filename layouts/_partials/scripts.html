@@ -8,3 +8,9 @@
 <script id="search-config" type="application/json">{{ site.Params.fuseOpts | jsonify | safeJS }}</script>
 <script src="{{ $search.RelPermalink }}" defer></script>
 {{- end }}
+
+{{- if eq .Layout "admin" }}
+{{- $admin := slice (resources.Get "js/vendor/marked.min.js") (resources.Get "js/admin.js") | resources.Concat "js/admin.bundle.js" }}
+{{- if hugo.IsProduction }}{{ $admin = $admin | minify | fingerprint }}{{ end }}
+<script src="{{ $admin.RelPermalink }}" defer></script>
+{{- end }}
