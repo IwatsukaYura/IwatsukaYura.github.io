@@ -59,6 +59,7 @@ mise run vet                       # 取り込みツールの静的チェック
 | `hiddenInHomeList` | ホームのフィードから除外 |
 | `searchHidden` | 検索インデックス（`layouts/index.json`）から除外 |
 | `hideToc` | 記事ページの目次を出さない（既定は見出し 2 つ以上で自動表示） |
+| `noindex` | `head.html` で `<meta name="robots" content="noindex, nofollow">` を出す（`/admin/` が使用） |
 
 ### 記事の URL
 
@@ -77,12 +78,13 @@ URL を変えたい既存記事は `slug` を足す。逆に URL が変わって
 - `layouts/single.html` — 記事本文。見出し数に応じて目次カラムを出す
 - `layouts/external/single.html` — 外部記事の単体ページ（リダイレクト前に一瞬見えるフォールバック）
 - `layouts/search.html` — 検索 UI（`content/search.md` が `layout: search` で呼ぶ）
+- `layouts/admin.html` — 執筆ページ（`content/admin.md` が `layout: admin` で呼ぶ）。後述「ブラウザからの執筆」
 - `layouts/index.json` — Fuse.js 用の検索インデックス（`[outputs] home = [..., "JSON"]`）
 - `layouts/_partials/entry.html` — 索引の 1 行。ページ単体か `dict "page" ... "dateFormat" ...` を受ける
 - `layouts/_partials/index-list.html` — 年で区切った索引。ホーム・一覧・タグで共用
 - `layouts/_partials/page-head.html` — 一覧系ページの見出し（eyebrow / title / note）
 - `layouts/_partials/head.html` — メタ情報、CSS 連結、外部記事のリダイレクト
-- `layouts/_partials/scripts.html` — JS 連結。検索ページでのみ Fuse.js を追加で読む
+- `layouts/_partials/scripts.html` — JS 連結。検索ページでのみ Fuse.js、執筆ページでのみ marked.js + `admin.js` を追加で読む
 
 ### アセット
 
@@ -94,6 +96,19 @@ URL を変えたい既存記事は `slug` を足す。逆に URL が変わって
 ### デプロイ
 
 `.github/workflows/deploy.yml`: main への push / 毎日 21:00 UTC (06:00 JST) / 手動実行 で、`jdx/mise-action` でツールを揃えたうえで `mise run fetch` → `mise run build` → GitHub Pages へデプロイ。手元と同じタスクを CI が実行する。日次実行があるため、Zenn へ投稿すれば翌朝には自動反映される。
+
+### ブラウザからの執筆（`/admin/`）
+
+サーバーは持たず、`assets/js/admin.js` がブラウザから GitHub API を直接叩いて `content/posts/` にコミットする。main へのコミットなので `deploy.yml` がそのまま走る。
+
+- 認証は fine-grained PAT（このリポジトリのみ・`Contents: Read and write` のみ）。トークンは閲覧者のブラウザの localStorage にだけ保存する。コミット先は `hugo.toml` の `[params.admin]`
+- 一覧は GraphQL で `content/posts/` を 1 リクエストで取得（`.md` とページバンドルの `index.md` の両方）。読み書きは Contents API で、`sha` による楽観ロックで他所の更新を上書きしない
+- front matter は `title` / `date` / `draft` / `tags` / `summary` だけをフォームに取り出し、それ以外のキーは行のまま「その他」欄に保持して書き戻す。既存記事は無編集で保存するとバイト単位で元と一致する。**`buildDocument` の出力形式を変えると全記事の差分になる**ので注意
+- 「公開」は `publish` タスクと同様に確認ダイアログを挟む。URL 名の制約も `mise run new` と同じ正規表現
+- 画像は `static/images/YYYY/MM/` にコミットし、本文に `/images/...` のリンクを挿入する
+- 入力途中の内容は localStorage（`admin:autosave:<path>`）に退避し、開き直したときに復元を提案する
+- ページ自体は `noindex` + `build.list: never` で、サイトマップ・RSS・検索・一覧から除外している
+- プレビューは marked.js（`assets/js/vendor/marked.min.js`）による簡易表示で、Hugo の shortcode やハイライトは反映されない
 
 ## 注意点
 
