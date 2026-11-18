@@ -14,8 +14,10 @@ AWS Certified Developer - Associate（DVA-C02）に合格したので、記録�
 ## 結果
 
 - 受験日: 2026 年 11 月 18 日
-- スコア: 【TODO: XXX】/ 1000（合格ライン 720）
+- スコア: 826 / 1000（合格ライン 720）
 - 勉強期間: 約 2 週間
+
+![AWS Certified Developer - Associate の試験結果のお知らせ。スコア 826、結果は合格](result.png)
 
 ## 使った教材
 
