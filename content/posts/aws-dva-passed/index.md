@@ -24,7 +24,12 @@ AWS Certified Developer - Associate（DVA-C02）に合格したので、記録�
 - [AWS認定資格試験テキスト AWS認定デベロッパー - アソシエイト](https://www.amazon.co.jp/dp/4815644063)（SBクリエイティブ）
 - [Udemy の DVA 対策講座](https://www.udemy.com/share/10cy3v3@-IlUUcPiTNnd4onGqdkAUwm4pz52ZzhiG2_NqTghEnaZdqQ14Vdh53E3BIorALkh8A==/)
 
-テキストで出題範囲を一通り押さえてから、Udemy の講座で問題演習をする流れで進めました。【TODO: 実際の進め方と違えば修正】
+## 進め方
+
+1. テキストを 1 回通して読む
+2. Udemy で演習し、分からなかった部分をテキストで読み直す（Udemy の問題は各 2 回ずつくらい解いた）
+3. 直前に苦手な部分をテキストで読み直す
+4. 最後にテキストの演習問題を解いて終わり
 
 ## 所感
 
