@@ -1,7 +1,7 @@
 ---
 title: "AWS Certified Developer - Associate（DVA）に合格しました"
 date: 2026-11-19T00:57:52+09:00
-draft: true
+draft: false
 tags:
   - AWS
   - 資格
@@ -33,4 +33,4 @@ AWS Certified Developer - Associate（DVA-C02）に合格したので、記録�
 
 ## 所感
 
-【TODO: 一言。例) 難しかった分野、本番の手応え、次に受けたい資格など】
+SAA と比べるとかなり簡単に感じましたが、実際の開発で使うような知識が多く、とてもためになりました。
