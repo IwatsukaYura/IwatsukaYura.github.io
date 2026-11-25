@@ -1530,3 +1530,205 @@ a.pager__link:hover {
     text-decoration: none;
   }
 }
+
+/* ---------- ナレッジ（階層ツリー） ---------- */
+.notes {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 3.25rem;
+  align-items: start;
+}
+.notes__main {
+  min-width: 0;
+}
+
+/* 左ツリー */
+.notes__nav {
+  position: sticky;
+  top: calc(var(--masthead) + 1.25rem);
+  align-self: start;
+  padding-right: 1.25rem;
+  border-right: 1px solid var(--rule);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+.notes__root {
+  display: block;
+  margin-bottom: 0.9rem;
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: lowercase;
+  color: var(--ash);
+}
+.notes__root.is-current {
+  color: var(--ink);
+}
+.ntree,
+.ntree .ntree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.ntree__children {
+  margin-left: 0.55rem;
+  padding-left: 0.7rem;
+  border-left: 1px solid var(--rule);
+}
+.ntree summary {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.28rem 0;
+  cursor: pointer;
+  list-style: none;
+  color: var(--ink-soft);
+  font-weight: 500;
+}
+.ntree summary::-webkit-details-marker {
+  display: none;
+}
+.ntree summary::before {
+  content: "";
+  flex: none;
+  width: 0;
+  height: 0;
+  border-top: 0.3rem solid transparent;
+  border-bottom: 0.3rem solid transparent;
+  border-left: 0.36rem solid currentColor;
+  color: var(--ash);
+  transition: transform 0.14s ease;
+}
+.ntree details[open] > summary::before {
+  transform: rotate(90deg);
+}
+.ntree summary:hover {
+  color: var(--ink);
+}
+.ntree summary.is-current {
+  color: var(--mark);
+}
+.ntree__overview {
+  display: block;
+  padding: 0.22rem 0;
+  font-size: 0.82rem;
+  color: var(--ash);
+}
+.ntree__overview:hover,
+.ntree__overview.is-current {
+  color: var(--mark);
+}
+.ntree__leaf a {
+  display: block;
+  padding: 0.28rem 0;
+  color: var(--ink-soft);
+}
+.ntree__leaf a:hover {
+  color: var(--ink);
+}
+.ntree__leaf.is-current a {
+  color: var(--mark);
+  font-weight: 600;
+}
+
+/* カテゴリカード（横並び） */
+.ncards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 0.9rem;
+  margin: 1.75rem 0 2.5rem;
+}
+.ncard {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding: 1.1rem 1.15rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.6rem;
+  transition: border-color 0.14s ease, background-color 0.14s ease;
+}
+.ncard:hover {
+  border-color: var(--rule-strong);
+  background: var(--wash);
+}
+.ncard__title {
+  font-weight: 600;
+  color: var(--ink);
+}
+.ncard:hover .ncard__title {
+  color: var(--mark);
+}
+.ncard__desc {
+  font-size: 0.85rem;
+  line-height: 1.55;
+  color: var(--ash);
+}
+.ncard__count {
+  margin-top: auto;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.03em;
+  color: var(--ash);
+}
+
+/* 個別ノート */
+.notes-crumb {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.9rem;
+  font-size: 0.8rem;
+  color: var(--ash);
+}
+.notes-crumb a {
+  color: var(--ash);
+}
+.notes-crumb a:hover {
+  color: var(--mark);
+}
+.notes-crumb .sep {
+  color: var(--rule-strong);
+}
+.notes-crumb a:last-of-type {
+  color: var(--ink-soft);
+}
+.notes-toc {
+  margin: 1.5rem 0 2rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--rule);
+  border-radius: 0.5rem;
+  background: var(--wash);
+  font-size: 0.9rem;
+}
+.notes-toc > summary {
+  cursor: pointer;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  color: var(--ash);
+}
+.notes-toc nav ul {
+  margin: 0.6rem 0 0;
+  padding-left: 1.1rem;
+}
+.notes-toc a {
+  color: var(--ink-soft);
+}
+.notes-toc a:hover {
+  color: var(--mark);
+}
+
+@media (max-width: 820px) {
+  .notes {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+  }
+  .notes__nav {
+    position: static;
+    padding-right: 0;
+    padding-bottom: 1.25rem;
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+  }
+}

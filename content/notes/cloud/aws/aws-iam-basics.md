@@ -3,7 +3,6 @@ title: "AWS IAM の基本整理"
 date: 2026-11-25T10:00:00+09:00
 lastmod: 2026-11-25T10:00:00+09:00
 draft: false
-category: "クラウド"
 tags:
   - AWS
   - IAM

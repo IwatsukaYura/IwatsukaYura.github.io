@@ -3,7 +3,6 @@ title: "Terraform の state を理解する"
 date: 2026-11-25T10:10:00+09:00
 lastmod: 2026-11-25T10:10:00+09:00
 draft: false
-category: "クラウド"
 tags:
   - Terraform
   - IaC

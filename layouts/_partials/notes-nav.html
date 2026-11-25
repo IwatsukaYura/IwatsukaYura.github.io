@@ -1,0 +1,27 @@
+{{- /* ナレッジの階層ツリー。dict "node" <section> "current" <page> "depth" <int> を渡す（再帰） */ -}}
+{{- $node := .node -}}
+{{- $current := .current -}}
+{{- $depth := .depth | default 0 -}}
+<ul class="ntree">
+  {{- range $node.Sections.ByWeight }}
+  {{- $open := or (eq $depth 0) (.IsAncestor $current) (eq .RelPermalink $current.RelPermalink) -}}
+  <li class="ntree__branch">
+    <details{{ if $open }} open{{ end }}>
+      <summary class="ntree__cat{{ if eq .RelPermalink $current.RelPermalink }} is-current{{ end }}">
+        <span class="ntree__label">{{ .LinkTitle }}</span>
+      </summary>
+      <div class="ntree__children">
+        {{- if .RegularPages }}
+        <a class="ntree__overview{{ if eq .RelPermalink $current.RelPermalink }} is-current{{ end }}" href="{{ .RelPermalink }}">概要</a>
+        {{- end }}
+        {{- partial "notes-nav.html" (dict "node" . "current" $current "depth" (add $depth 1)) }}
+      </div>
+    </details>
+  </li>
+  {{- end }}
+  {{- range $node.RegularPages.ByTitle }}
+  <li class="ntree__leaf{{ if eq .RelPermalink $current.RelPermalink }} is-current{{ end }}">
+    <a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a>
+  </li>
+  {{- end }}
+</ul>

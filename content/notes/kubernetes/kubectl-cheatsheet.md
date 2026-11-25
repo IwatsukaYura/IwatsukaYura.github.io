@@ -3,7 +3,6 @@ title: "kubectl よく使うコマンド"
 date: 2026-11-25T10:20:00+09:00
 lastmod: 2026-11-25T10:20:00+09:00
 draft: false
-category: "Kubernetes"
 tags:
   - Kubernetes
   - kubectl

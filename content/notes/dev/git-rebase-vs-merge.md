@@ -3,7 +3,6 @@ title: "git rebase と merge の使い分け"
 date: 2026-11-25T10:30:00+09:00
 lastmod: 2026-11-25T10:30:00+09:00
 draft: false
-category: "開発"
 tags:
   - Git
 summary: "履歴を一直線にする rebase と、分岐を残す merge の違いと使い分けの指針。"

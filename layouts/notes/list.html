@@ -1,31 +1,45 @@
 {{- define "main" }}
+{{- $root := site.GetPage "/notes" }}
+{{- $isRoot := eq .RelPermalink $root.RelPermalink }}
+{{- $eyebrow := cond $isRoot "notes" .Parent.LinkTitle }}
 
-<div class="with-side">
-  <div class="with-side__main">
+<div class="notes">
+
+  <nav class="notes__nav" aria-label="ナレッジのカテゴリ">
+    <a class="notes__root{{ if $isRoot }} is-current{{ end }}" href="{{ $root.RelPermalink }}">ナレッジ</a>
+    {{- partial "notes-nav.html" (dict "node" $root "current" . "depth" 0) }}
+  </nav>
+
+  <div class="notes__main">
     {{- partial "page-head.html" (dict
-      "eyebrow" "notes"
+      "eyebrow" $eyebrow
       "title" .Title
-      "note" (printf "%d notes" (len .RegularPages))) }}
+      "note" (printf "%d notes" (len .RegularPagesRecursive))) }}
 
     {{- with .Content }}<div class="page-head__body prose">{{ . }}</div>{{ end }}
 
-    {{- $notes := .RegularPages }}
-    {{- if $notes }}
-    <div class="index">
-      {{- range $notes.GroupByParam "category" }}
-      <section class="index__group">
-        <h2 class="index__year"><span>{{ .Key | default "その他" }}</span></h2>
-        {{- range sort .Pages "Title" }}
-        {{- partial "entry.html" . }}
-        {{- end }}
-      </section>
+    {{- with .Sections.ByWeight }}
+    <div class="ncards">
+      {{- range . }}
+      <a class="ncard" href="{{ .RelPermalink }}">
+        <span class="ncard__title">{{ .LinkTitle }}</span>
+        {{- with .Params.summary }}<span class="ncard__desc">{{ . }}</span>{{ end }}
+        <span class="ncard__count">{{ len .RegularPagesRecursive }} notes</span>
+      </a>
       {{- end }}
     </div>
-    {{- else }}
-    <p class="empty">まだノートがありません。<code>content/notes/</code> に Markdown を追加してください。</p>
+    {{- end }}
+
+    {{- with .RegularPages.ByTitle }}
+    <div class="index index--flat notes__list">
+      {{- range . }}{{ partial "entry.html" . }}{{ end }}
+    </div>
+    {{- end }}
+
+    {{- if and (not .Sections) (not .RegularPages) }}
+    <p class="empty">まだノートがありません。<code>content/notes/</code> にフォルダや Markdown を追加してください。</p>
     {{- end }}
   </div>
-  {{- partial "sidebar.html" . }}
-</div>
 
+</div>
 {{- end }}

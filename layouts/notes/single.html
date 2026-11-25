@@ -1,0 +1,70 @@
+{{- define "main" }}
+{{- $root := site.GetPage "/notes" }}
+{{- $hasToc := and (ne (.Param "hideToc") true) (ge (len .Fragments.Identifiers) 2) }}
+
+<div class="notes">
+
+  <nav class="notes__nav" aria-label="ナレッジのカテゴリ">
+    <a class="notes__root" href="{{ $root.RelPermalink }}">ナレッジ</a>
+    {{- partial "notes-nav.html" (dict "node" $root "current" . "depth" 0) }}
+  </nav>
+
+  <article class="notes__main post">
+
+    <p class="notes-crumb">
+      {{- range .Ancestors.Reverse }}
+      {{- if .IsSection }}<a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a><span class="sep" aria-hidden="true">/</span>{{ end }}
+      {{- end }}
+    </p>
+
+    <header class="post__head">
+      <p class="post__kicker">
+        <time datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "2006.01.02" }}</time>
+        <span class="sep" aria-hidden="true">/</span>
+        <span>{{ cond (lt .ReadingTime 1) 1 .ReadingTime }} min</span>
+      </p>
+      <h1 class="post__title">{{ .Title }}</h1>
+      {{- with .Params.summary }}<p class="post__lead">{{ . }}</p>{{ end }}
+    </header>
+
+    {{- if $hasToc }}
+    <details class="notes-toc">
+      <summary>目次</summary>
+      {{ .TableOfContents }}
+    </details>
+    {{- end }}
+
+    <div class="prose">
+      {{- .Content }}
+    </div>
+
+    <footer class="post__foot">
+      {{- with .GetTerms "tags" }}
+      <ul class="post__tags">
+        {{- range . }}<li><a href="{{ .RelPermalink }}">{{ .LinkTitle }}</a></li>{{ end }}
+      </ul>
+      {{- end }}
+
+      {{- $prev := .PrevInSection }}{{ $next := .NextInSection }}
+      {{- if or $prev $next }}
+      <nav class="post__nav" aria-label="前後のノート">
+        {{- with $next }}
+        <a class="post__nav-item" href="{{ .RelPermalink }}" rel="next">
+          <span class="post__nav-label">&larr; prev</span>
+          <span class="post__nav-title">{{ .Title }}</span>
+        </a>
+        {{- else }}<span></span>{{ end }}
+        {{- with $prev }}
+        <a class="post__nav-item is-right" href="{{ .RelPermalink }}" rel="prev">
+          <span class="post__nav-label">next &rarr;</span>
+          <span class="post__nav-title">{{ .Title }}</span>
+        </a>
+        {{- end }}
+      </nav>
+      {{- end }}
+    </footer>
+
+  </article>
+
+</div>
+{{- end }}
