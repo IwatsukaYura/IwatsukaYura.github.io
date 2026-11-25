@@ -1,0 +1,31 @@
+{{- define "main" }}
+
+<div class="with-side">
+  <div class="with-side__main">
+    {{- partial "page-head.html" (dict
+      "eyebrow" "notes"
+      "title" .Title
+      "note" (printf "%d notes" (len .RegularPages))) }}
+
+    {{- with .Content }}<div class="page-head__body prose">{{ . }}</div>{{ end }}
+
+    {{- $notes := .RegularPages }}
+    {{- if $notes }}
+    <div class="index">
+      {{- range $notes.GroupByParam "category" }}
+      <section class="index__group">
+        <h2 class="index__year"><span>{{ .Key | default "その他" }}</span></h2>
+        {{- range sort .Pages "Title" }}
+        {{- partial "entry.html" . }}
+        {{- end }}
+      </section>
+      {{- end }}
+    </div>
+    {{- else }}
+    <p class="empty">まだノートがありません。<code>content/notes/</code> に Markdown を追加してください。</p>
+    {{- end }}
+  </div>
+  {{- partial "sidebar.html" . }}
+</div>
+
+{{- end }}

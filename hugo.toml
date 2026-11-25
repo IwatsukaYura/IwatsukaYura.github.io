@@ -52,6 +52,11 @@ enableEmoji = true
     url = "/posts/"
     weight = 10
   [[menu.main]]
+    identifier = "notes"
+    name = "notes"
+    url = "/notes/"
+    weight = 15
+  [[menu.main]]
     identifier = "tags"
     name = "tags"
     url = "/tags/"
@@ -87,3 +92,4 @@ enableEmoji = true
 [permalinks]
   posts = "/:year/:month/:slugorcontentbasename/"
   external = "/external/:slug/"
+  notes = "/notes/:contentbasename/"

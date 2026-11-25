@@ -1,5 +1,6 @@
 {{- $index := slice -}}
-{{- range where site.RegularPages "Type" "in" site.Params.mainSections -}}
+{{- $searchTypes := site.Params.mainSections | append "notes" -}}
+{{- range where site.RegularPages "Type" "in" $searchTypes -}}
   {{- if not .Params.searchHidden -}}
     {{- $tags := slice -}}
     {{- range .GetTerms "tags" }}{{ $tags = $tags | append .LinkTitle }}{{ end -}}
