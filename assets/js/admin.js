@@ -752,6 +752,7 @@
     setBusy(true);
     showStatus("保存しています…");
     try {
+      if (!current.path && category) await ensureSectionIndexes(category);
       const res = await gh(contentsPath(path), { method: "PUT", body: body });
       const wasNew = !current.path;
       store.remove(autosaveKey());
@@ -773,6 +774,35 @@
       }
     } finally {
       setBusy(false);
+    }
+  }
+
+  // Hugo は 2 階層目以降のディレクトリを _index.md が無いとセクションとして扱わず、
+  // ノートが親カテゴリ直下に表示されてしまう。カテゴリの各階層に _index.md が無ければ作る。
+  async function ensureSectionIndexes(category) {
+    const segments = category.split("/");
+    for (let i = 1; i <= segments.length; i++) {
+      const indexPath = cfg().dir + "/" + segments.slice(0, i).join("/") + "/_index.md";
+      try {
+        await gh(contentsPath(indexPath) + "?ref=" + encodeURIComponent(BRANCH));
+        continue;
+      } catch (err) {
+        if (!(err instanceof ApiError && err.status === 404)) throw err;
+      }
+      const name = segments[i - 1];
+      try {
+        await gh(contentsPath(indexPath), {
+          method: "PUT",
+          body: {
+            message: "note: add category " + segments.slice(0, i).join("/"),
+            content: encodeText('---\ntitle: "' + name + '"\n---\n'),
+            branch: BRANCH,
+          },
+        });
+      } catch (err) {
+        // 422 は同時に作成された場合。既にあるなら目的は達成している
+        if (!(err instanceof ApiError && err.status === 422)) throw err;
+      }
     }
   }
 
