@@ -1732,3 +1732,39 @@ a.pager__link:hover {
     border-bottom: 1px solid var(--rule);
   }
 }
+
+/* ---------- admin: セクション切替（記事 / ノート） ---------- */
+.admin__sections {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--rule);
+}
+.admin__seg {
+  padding: 0 0 0.6rem;
+  margin-bottom: -1px;
+  border-bottom: 2px solid transparent;
+  font-family: var(--font-mono);
+  font-size: 0.875rem;
+  color: var(--ash);
+  cursor: pointer;
+}
+.admin__seg:hover {
+  color: var(--ink);
+}
+.admin__seg.is-current {
+  border-bottom-color: var(--mark);
+  color: var(--ink);
+}
+
+/* admin: ノート一覧のカテゴリ見出し */
+.admin-list__group {
+  margin: 1.5rem 0 0.25rem;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--ash);
+}
+.admin-list__group:first-child {
+  margin-top: 0;
+}

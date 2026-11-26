@@ -28,8 +28,12 @@
     </p>
   </section>
 
-  {{- /* 記事一覧 */}}
+  {{- /* 一覧 */}}
   <section class="admin__home" id="admin-home" hidden>
+    <div class="admin__sections" role="tablist" aria-label="セクション">
+      <button class="admin__seg is-current" type="button" data-section="posts">記事</button>
+      <button class="admin__seg" type="button" data-section="notes">ノート</button>
+    </div>
     <div class="admin__toolbar">
       <button class="admin__btn is-primary" type="button" id="new-post">新しい記事</button>
       <span class="admin__spacer"></span>
@@ -62,6 +66,13 @@
         <input class="admin__input is-mono" id="f-name" type="text" autocomplete="off" autocapitalize="off"
                spellcheck="false" placeholder="my-new-post">
         <p class="admin__hint" id="url-preview"></p>
+      </div>
+      <div class="admin__field is-wide" id="cat-field" hidden>
+        <label class="admin__label" for="f-category">カテゴリ</label>
+        <select class="admin__input" id="f-category"></select>
+        <input class="admin__input is-mono" id="f-new-category" type="text" autocomplete="off"
+               autocapitalize="off" spellcheck="false" placeholder="dev/git" hidden>
+        <p class="admin__hint">ノートを置くフォルダ。「+ 新しいカテゴリ」で新規作成できます（英小文字・数字・ハイフン・<code>/</code> 区切り）。</p>
       </div>
       <div class="admin__field">
         <label class="admin__label" for="f-date">日付</label>

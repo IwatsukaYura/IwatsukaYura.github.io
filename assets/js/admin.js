@@ -12,8 +12,19 @@
   const SITE = (root.dataset.site || "/").replace(/\/?$/, "/");
   const API = "https://api.github.com";
   const POSTS_DIR = "content/posts";
+  const NOTES_DIR = "content/notes";
   const TOKEN_KEY = "admin:token";
   const AUTOSAVE_PREFIX = "admin:autosave:";
+
+  // セクション（記事 / ノート）。記事は日付で URL が決まり、ノートはカテゴリ（フォルダ）に置く。
+  const SECTION = {
+    posts: { dir: POSTS_DIR, verb: "post", noun: "記事", newLabel: "新しい記事", empty: "記事がまだありません", hasCategory: false },
+    notes: { dir: NOTES_DIR, verb: "note", noun: "ノート", newLabel: "新しいノート", empty: "ノートがまだありません", hasCategory: true },
+  };
+  let mode = "posts";
+  const cfg = () => SECTION[mode];
+  // カテゴリのパス（例: dev/git）。英小文字・数字・ハイフンの区切りを / でつなぐ。空文字はルート直下。
+  const CATEGORY_RE = /^([a-z0-9]+(-[a-z0-9]+)*)(\/[a-z0-9]+(-[a-z0-9]+)*)*$/;
   // mise run new と同じ制約（ファイル名がそのまま URL になる）
   const NAME_RE = /^[a-z0-9]+(-[a-z0-9]+)*$/;
   const DATE_RE = /^\d{4}-\d{2}-\d{2}(T\d{2}:\d{2}(:\d{2})?(\.\d+)?)?(Z|[+-]\d{2}:\d{2})?$/;
@@ -34,6 +45,9 @@
     title: $("f-title"),
     name: $("f-name"),
     urlPreview: $("url-preview"),
+    catField: $("cat-field"),
+    category: $("f-category"),
+    newCategory: $("f-new-category"),
     date: $("f-date"),
     tags: $("f-tags"),
     summary: $("f-summary"),
@@ -44,6 +58,7 @@
     preview: $("preview"),
     saveDraft: $("save-draft"),
     savePublish: $("save-publish"),
+    newPost: $("new-post"),
   };
 
   /* ---------- localStorage（使えない環境でも落とさない） ---------- */
@@ -315,6 +330,23 @@
     return SITE + date.slice(0, 4) + "/" + date.slice(5, 7) + "/" + name + "/";
   }
 
+  // ノートの URL は permalink（:contentbasename）に合わせてカテゴリを含めずファイル名だけ。
+  function noteUrl(name) {
+    return NAME_RE.test(name) ? SITE + "notes/" + name + "/" : "";
+  }
+
+  function itemUrl(name, date) {
+    return mode === "notes" ? noteUrl(name) : postUrl(name, date);
+  }
+
+  // 新しいカテゴリ入力が選ばれているか
+  const NEW_CATEGORY = "__new__";
+  function selectedCategory() {
+    if (!cfg().hasCategory) return "";
+    const v = el.category.value;
+    return v === NEW_CATEGORY ? el.newCategory.value.trim() : v;
+  }
+
   /* ---------- 記事一覧 ---------- */
   const LIST_QUERY = `query($owner: String!, $name: String!, $expr: String!) {
     repository(owner: $owner, name: $name) {
@@ -372,16 +404,101 @@
     posts.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
   }
 
+  /* ---------- ノート一覧（カテゴリ = フォルダ、ネスト対応） ---------- */
+  // GraphQL は再帰できないので Tree を数段ネストして取得する（notes/<a>/<b>/<c>/note.md まで）。
+  function treeSelection(depth) {
+    const leaf = "... on Blob { text }";
+    if (depth <= 0) return "object { " + leaf + " }";
+    return "object { " + leaf + " ... on Tree { entries { name type " + treeSelection(depth - 1) + " } } }";
+  }
+  const NOTES_QUERY =
+    "query($owner: String!, $name: String!, $expr: String!) {" +
+    "  repository(owner: $owner, name: $name) {" +
+    "    object(expression: $expr) { ... on Tree { entries { name type " +
+    treeSelection(4) +
+    " } } } } }";
+
+  let noteCategories = [];
+
+  function collectNotes(entries, prefix, cats) {
+    for (const entry of entries) {
+      if (entry.type === "blob" && /\.md$/.test(entry.name) && entry.name !== "_index.md") {
+        const name = entry.name.replace(/\.md$/, "");
+        const path = NOTES_DIR + "/" + (prefix ? prefix + "/" : "") + entry.name;
+        const item = summarize(name, path, entry.object && entry.object.text);
+        item.category = prefix;
+        posts.push(item);
+      } else if (entry.type === "tree" && entry.object && entry.object.entries) {
+        const sub = prefix ? prefix + "/" + entry.name : entry.name;
+        cats.add(sub);
+        collectNotes(entry.object.entries, sub, cats);
+      }
+    }
+  }
+
+  async function loadNotes() {
+    const parts = REPO.split("/");
+    const data = await graphql(NOTES_QUERY, { owner: parts[0], name: parts[1], expr: BRANCH + ":" + NOTES_DIR });
+    const tree = data.repository && data.repository.object;
+    if (!tree || !tree.entries) throw new Error(NOTES_DIR + " が見つかりません");
+    posts = [];
+    const cats = new Set();
+    collectNotes(tree.entries, "", cats);
+    noteCategories = Array.from(cats).sort();
+    posts.sort((a, b) => {
+      const ca = a.category || "";
+      const cb = b.category || "";
+      if (ca !== cb) return ca < cb ? -1 : 1;
+      return a.title < b.title ? -1 : a.title > b.title ? 1 : 0;
+    });
+  }
+
+  function fillCategories(selected) {
+    const sel = el.category;
+    sel.textContent = "";
+    const add = (value, label) => {
+      const opt = document.createElement("option");
+      opt.value = value;
+      opt.textContent = label;
+      sel.appendChild(opt);
+    };
+    add("", "（ルート直下 / notes）");
+    const known = noteCategories.slice();
+    if (selected && selected !== NEW_CATEGORY && !known.includes(selected)) known.push(selected);
+    known.sort();
+    for (const c of known) add(c, c);
+    add(NEW_CATEGORY, "+ 新しいカテゴリ…");
+    sel.value = selected != null && (selected === "" || known.includes(selected)) ? selected : "";
+    syncNewCategory();
+  }
+
+  function syncNewCategory() {
+    const isNew = el.category.value === NEW_CATEGORY;
+    el.newCategory.hidden = !isNew;
+    if (!isNew) el.newCategory.value = "";
+  }
+
   function renderList() {
     el.list.textContent = "";
     if (!posts.length) {
       const li = document.createElement("li");
       li.className = "admin-list__empty";
-      li.textContent = "記事がまだありません";
+      li.textContent = cfg().empty;
       el.list.appendChild(li);
       return;
     }
+    let lastCat = null;
     for (const post of posts) {
+      if (cfg().hasCategory) {
+        const cat = post.category || "";
+        if (cat !== lastCat) {
+          lastCat = cat;
+          const head = document.createElement("li");
+          head.className = "admin-list__group";
+          head.textContent = cat === "" ? "（ルート直下）" : cat;
+          el.list.appendChild(head);
+        }
+      }
       const li = document.createElement("li");
       const btn = document.createElement("button");
       btn.type = "button";
@@ -407,9 +524,14 @@
 
   async function goHome(message) {
     show("home");
-    showStatus(message || "記事を読み込んでいます…");
+    el.newPost.textContent = cfg().newLabel;
+    document.querySelectorAll(".admin__seg").forEach((b) => {
+      b.classList.toggle("is-current", b.dataset.section === mode);
+    });
+    showStatus(message || cfg().noun + "を読み込んでいます…");
     try {
-      await loadPosts();
+      if (mode === "notes") await loadNotes();
+      else await loadPosts();
       renderList();
       if (!message) showStatus("");
     } catch (err) {
@@ -451,9 +573,17 @@
   }
 
   function refreshDerived() {
-    const url = postUrl(el.name.value.trim(), el.date.value.trim());
+    const url = itemUrl(el.name.value.trim(), el.date.value.trim());
     el.urlPreview.textContent = url ? url : "英小文字・数字・ハイフンのみ。そのまま URL になります";
     el.name.readOnly = !!(current && current.path);
+
+    // カテゴリ欄はノートのときだけ。既存ノートの移動はここではできない（ファイルを直接動かす）。
+    el.catField.hidden = !cfg().hasCategory;
+    if (cfg().hasCategory) {
+      const locked = !!(current && current.path);
+      el.category.disabled = locked;
+      el.newCategory.disabled = locked;
+    }
 
     let state = "新規（未保存）";
     if (current && current.path) state = (current.published ? "公開中" : "下書き") + " — " + current.path;
@@ -476,7 +606,7 @@
   }
 
   /* 入力途中の内容はタブを閉じても消えないようにブラウザへ退避する */
-  const autosaveKey = () => AUTOSAVE_PREFIX + ((current && current.path) || "new");
+  const autosaveKey = () => AUTOSAVE_PREFIX + mode + ":" + ((current && current.path) || "new");
   let autosaveTimer = 0;
   function scheduleAutosave() {
     clearTimeout(autosaveTimer);
@@ -527,6 +657,7 @@
   function newPost() {
     current = { path: null, sha: null, published: false };
     showStatus("");
+    if (cfg().hasCategory) fillCategories("");
     openEditor({ title: "", name: "", date: nowJST(), tags: [], summary: "", extra: "", body: "" });
     el.title.focus();
   }
@@ -539,6 +670,10 @@
       const parsed = parseFrontMatter(doc.frontMatter);
       const name = path.endsWith("/index.md") ? path.split("/").slice(-2, -1)[0] : path.split("/").pop().replace(/\.md$/, "");
       current = { path: path, sha: file.sha, published: !parsed.fields.draft };
+      if (cfg().hasCategory && path.startsWith(NOTES_DIR + "/")) {
+        const relPath = path.slice((NOTES_DIR + "/").length);
+        fillCategories(relPath.includes("/") ? relPath.replace(/\/[^/]+$/, "") : "");
+      }
       showStatus("");
       openEditor({
         title: parsed.fields.title,
@@ -564,8 +699,14 @@
     if (!DATE_RE.test(form.date)) return "日付は 2026-01-02T10:00:00+09:00 の形式で入力してください";
     const extraError = validateExtra(form.extra);
     if (extraError) return extraError;
+    if (cfg().hasCategory && !current.path) {
+      const cat = selectedCategory();
+      if (cat !== "" && !CATEGORY_RE.test(cat)) {
+        return "カテゴリは英小文字・数字・ハイフンと / 区切りで指定してください: " + cat;
+      }
+    }
     if (!current.path && posts.some((p) => p.name === form.name)) {
-      return "同じ URL 名の記事が既にあります: " + form.name;
+      return "同じ URL 名の" + cfg().noun + "が既にあります: " + form.name;
     }
     return "";
   }
@@ -593,14 +734,16 @@
       return;
     }
 
-    const path = current.path || POSTS_DIR + "/" + form.name + ".md";
+    const category = cfg().hasCategory ? selectedCategory() : "";
+    const newPath = cfg().dir + "/" + (category ? category + "/" : "") + form.name + ".md";
+    const path = current.path || newPath;
     const content = buildDocument(
       { title: form.title, date: form.date, draft: draft, tags: form.tags, summary: form.summary },
       form.extra,
       form.body
     );
     const body = {
-      message: (draft ? "draft: " : "post: ") + form.title,
+      message: (draft ? "draft: " : cfg().verb + ": ") + form.title,
       content: encodeText(content),
       branch: BRANCH,
     };
@@ -613,7 +756,7 @@
       const wasNew = !current.path;
       store.remove(autosaveKey());
       current = { path: path, sha: res.content.sha, published: !draft };
-      if (wasNew) posts.push({ name: form.name, path: path, title: form.title, date: form.date, draft: draft });
+      if (wasNew) posts.push({ name: form.name, path: path, title: form.title, date: form.date, draft: draft, category: category });
       dirty = false;
       refreshDerived();
       showStatus(savedMessage(draft, form), "ok");
@@ -640,7 +783,7 @@
     } else {
       frag.append("公開しました。デプロイが終わると ");
       const a = document.createElement("a");
-      a.href = postUrl(form.name, form.date);
+      a.href = itemUrl(form.name, form.date);
       a.target = "_blank";
       a.rel = "noopener";
       a.textContent = a.href;
@@ -753,6 +896,19 @@
 
   $("new-post").addEventListener("click", newPost);
   $("reload-list").addEventListener("click", () => goHome());
+
+  document.querySelectorAll(".admin__seg").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (btn.dataset.section === mode || !SECTION[btn.dataset.section]) return;
+      mode = btn.dataset.section;
+      goHome();
+    });
+  });
+
+  el.category.addEventListener("change", () => {
+    syncNewCategory();
+    if (el.category.value === NEW_CATEGORY) el.newCategory.focus();
+  });
   $("back").addEventListener("click", () => {
     if (dirty && !window.confirm("未保存の変更があります（このブラウザには退避済みです）。一覧に戻りますか？")) return;
     dirty = false;
